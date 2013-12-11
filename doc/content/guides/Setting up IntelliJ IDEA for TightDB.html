@@ -1,0 +1,27 @@
+<h1>Setting up IntelliJ IDEA for TightDB</h1>
+
+<ol>
+    <li>Make sure the Java compiler is configured with 1.6 or 1.7 version.
+        <ul>
+            <li>Go to File &rarr; Project Structure &rarr; SDK.</li>
+            <li>Make sure the configured compiler version is at least 1.6.</li>
+        </ul>
+    </li>
+    <li>Make sure tightdb.jar and tightdb-devkit.jar are added to the build path.</li>
+    <li>Configure the annotation processor (this will enable IntelliJ IDEA to generate the TightDB-related source code).
+        <ul>
+            <li>Go to Preferences &rarr; Compiler &rarr; Annotation Processors</li>
+            <li>Check "Enable annotation processing"</li>
+            <li>Check "Obtain processors from project classpath"</li>
+            <li>Make sure that "Store generated sources relative to" is set to "Module content root"</li>
+            <li>In "Production sources library" and "Test sources library" "configure the output folders, e.g. "generated" and "generated-test"."</li>
+        </ul>
+    </li>
+    <li>Add "generated" and "generated-test" as Sources and Test Sources" </li>
+        <ul>
+            <li>Go to File &rarr; Project Structure &rarr; Modules</li>
+            <li>Mark "generated" as Sources</li>
+            <li>Mark "generated-test" as Test Sources</li>
+        </ul>
+    <li>When the above steps is completed IntelliJ IDEA will generate sources from classes annotated with @DefineTable every time you compile your project. After compilation it might be needed to Synchronize your project, before the ide acknowledges the new sources.</li>
+</ol>

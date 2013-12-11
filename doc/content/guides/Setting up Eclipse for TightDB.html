@@ -1,0 +1,43 @@
+<h1>Setting up Eclipse for TightDB</h1>
+
+Open the project in which you want to use TightDB and open the Properties dialog by selecting the 'Project &rarr; Properties' menu item.
+<p>
+<ol>
+    <li>Make sure the Java compiler is configured with 1.6 or 1.7 version.
+        <ul>
+            <li>Go to the 'Java Compiler' page.</li>
+            <li>The configured compiler version should be at least 1.6.</li>
+        </ul>
+    </li>
+    <p>
+    <li>Add tightdb.jar to the build path.
+        <ul>
+            <li>Go to the 'Java Build Path' page.</li>
+            <li>Select the 'Libraries' tab.</li>
+            <li>Click the 'Add External JARs...' botton.</li>
+            <li>Select tightdb.jar. It will usually be found in /usr/local/share/java, but your local setup may vary. Check the output of the install process for precise location.</li>
+        </ul>
+    </li>
+    <p>
+    <li>Configure tightdb-devkit.jar as annotation processor.
+        <ul>
+            <li>Go to the 'Java Compiler &rarr; Annotation Processing' page.
+            <ul>
+                <li>Check 'Enable project specific settings.</li>
+                <li>Enable annotation processing (check both check-boxes).</li>
+                <li>Configure the output folder for the generated sources in the "Generated source directory" field.</li>
+                <li>If the project sources are in folder(s) different than "src", "src/main/java" and "src/test/java", the path to the source files must be specified.</li>
+            </ul>
+            </li>
+            <li>Go to 'Java Compiler &rarr; Annotation Processing &rarr; Factory Path' page.
+            <ul>
+                <li>Check 'Enable project specific settings.</li>
+                <li>Click the 'Add External JARs...' botton.</li>
+                <li>Add tightdb-devkit.jar (found in same location as tightdb.jar) and make sure it is checked.</li>
+            </ul>
+            </li>
+        </ul>
+    </li>
+</ol>
+<p>
+If the previous steps was done properly, Eclipse will start generating Java source code as soon as you annotate your schema specification classes with the @DefineTable annotation. Whenever you save a file, the TightDB files are regenerated.

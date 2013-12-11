@@ -1,0 +1,84 @@
+<h2>Setting up TightDB for a new or existing project using Maven</h2>
+
+<p>Please check the "maven-setup" example, for a complete and running Maven-based project. It's located in the "examples" folder in the distribution. You might also want to check <a href="http://www.tightdb.com/documentation/java_misc/40/Eclipse Setup.html">Eclipse Setup</a> for instructions for setting up TightDB using Eclipse.</p>
+
+<ol>
+<li>Create a new Maven project (or skip this step if you have an existing project).</li>
+<li>Copy (or link) the native TightDB library into the project's "lib" folder (<code>&lt;project&gt;/lib</code>).<br>
+Note: create the "lib" folder if it doesn't exist in the project root.</li>
+<li>Install the tightdb.jar and tightdb-devkit.jar libraries into the local Maven repository:
+
+<pre>
+mvn install:install-file -Dfile=lib/tightdb.jar -DgroupId=com.tightdb -DartifactId=tightdb -Dversion=0.1.3 -Dpackaging=jar
+mvn install:install-file -Dfile=lib/tightdb-devkit.jar -DgroupId=com.tightdb -DartifactId=tightdb-devkit -Dversion=0.1.3 -Dpackaging=jar</pre>
+</li>
+
+<li>Add the TightDB JAR as a Maven dependency (in <code>&lt;dependencies&gt; ... &lt;/dependencies&gt;</code>) in pom.xml:
+
+<pre>
+&lt;dependency&gt;
+    &lt;groupId&gt;com.tightdb&lt;/groupId&gt;
+    &lt;artifactId&gt;tightdb&lt;/artifactId&gt;
+    &lt;version&gt;0.1.3&lt;/version&gt;
+&lt;/dependency&gt;
+</pre></li>
+
+<li>Configure Java compiler (to version 1.6 or 1.7) in pom.xml (in <code>&lt;build&gt; &lt;plugins&gt; ... &lt;/plugins&gt; &lt;/build&gt;</code> file zone):
+
+<pre>
+&lt;plugin&gt;
+    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+    &lt;version&gt;2.3.2&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;source&gt;1.6&lt;/source&gt;
+        &lt;target&gt;1.6&lt;/target&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
+</pre></li>
+
+<li>Configure the annotation processing in pom.xml (in <code>&lt;build&gt; &lt;plugins&gt; ... &lt;/plugins&gt; &lt;/build&gt;</code> file zone):
+
+<pre>
+&lt;plugin&gt; 
+    &lt;groupId&gt;org.bsc.maven&lt;/groupId&gt;
+    &lt;artifactId&gt;maven-processor-plugin&lt;/artifactId&gt;
+    &lt;version&gt;2.0.5&lt;/version&gt; 
+    &lt;executions&gt; 
+        &lt;execution&gt;
+        &lt;goals&gt; 
+            &lt;goal&gt;process&lt;/goal&gt; 
+        &lt;/goals&gt;
+        &lt;configuration&gt; 
+            &lt;processors&gt;
+                &lt;processor&gt;com.tightdb.generator.CodeGenProcessor&lt;/processor&gt;
+            &lt;/processors&gt;
+            &lt;outputDirectory&gt;${project.build.directory}/generated&lt;/outputDirectory&gt;
+        &lt;/configuration&gt; 
+        &lt;/execution&gt; 
+    &lt;/executions&gt;
+    &lt;dependencies&gt; 
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.tightdb&lt;/groupId&gt;
+            &lt;artifactId&gt;tightdb-devkit&lt;/artifactId&gt;
+            &lt;version&gt;0.1.3&lt;/version&gt; 
+        &lt;/dependency&gt; 
+    &lt;/dependencies&gt;
+ &lt;/plugin&gt;
+</pre>
+
+<p>Note: You might get a "Plugin execution not covered by lifecycle configuration" error in Eclipse for the "maven-processor-plugin" configuration, you can "permanently mark the execution as ignored", as it will be suggested by Eclipse Quick-fix (Ctrl + 1).</p>
+
+</li>
+
+<li>Write your Java application code (see the examples)
+<p>Note: It's normal to see compilation errors at this step, since the TightDB classes isn't generated yet.</li>
+
+<li>Executing <code>mvn clean compile</code> will generate the source files (deleting the previously generated files).
+
+<p>Note: This step configures the annotation-driven code generator (that's part of TightDB) to execute as annotation processor. The output folder for the generated sources is configured as "${project.build.directory}/generated", which translates to "target/generated" for a typical Maven layout. The tightdb-devkit.jar library does the code generation at compile-time, and is not required at run-time, so it's added only as plug-in dependency.</p>
+
+</li>
+
+<li>If you use an IDE, you need to add the "target/generated" folder as a source folder, so the generated files can be found and the IDE can compile the code without errors.  - Note: if you are using Eclipse, following the additional instructions in <a href="http://www.tightdb.com/documentation/java_misc/40/Eclipse Setup.html">Eclipse Setup</a> is recommended.</li>
+</ol>
