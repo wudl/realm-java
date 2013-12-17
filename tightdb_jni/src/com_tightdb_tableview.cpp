@@ -30,7 +30,7 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_createNativeTableView(
 }
 
 JNIEXPORT void JNICALL Java_com_tightdb_TableView_nativeClose(
-    JNIEnv*, jobject, jlong nativeViewPtr)
+    JNIEnv*, jclass, jlong nativeViewPtr)
 {
     if (nativeViewPtr == 0)
         return;
@@ -53,7 +53,7 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSourceRowIndex
         return 0;
     if (!ROW_INDEX_VALID(env, TV(nativeViewPtr), rowIndex))
         return 0;
-    return TV(nativeViewPtr)->get_source_ndx(rowIndex);   // noexcept
+    return TV(nativeViewPtr)->get_source_ndx(S(rowIndex));   // noexcept
 }
 
 JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetColumnCount
@@ -199,7 +199,7 @@ JNIEXPORT jobject JNICALL Java_com_tightdb_TableView_nativeGetMixed(
     return NULL;
 }
 
-JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSubTableSize(
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSubtableSize(
     JNIEnv* env, jobject, jlong nativeViewPtr, jlong columnIndex, jlong rowIndex)
 {
     if (!VIEW_VALID(env, nativeViewPtr) ||
@@ -209,20 +209,20 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSubTableSize(
     return TV(nativeViewPtr)->get_subtable_size( S(columnIndex), S(rowIndex));  // noexcept
 }
 
-JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSubTable(
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSubtable(
     JNIEnv* env, jobject, jlong nativeViewPtr, jlong columnIndex, jlong rowIndex)
 {
     if (!VIEW_VALID(env, nativeViewPtr) ||
         !INDEX_AND_TYPE_VALID_MIXED(env, TV(nativeViewPtr), columnIndex, rowIndex, type_Table))
         return 0;
     try { // needed?
-        Table* pSubTable = LangBindHelper::get_subtable_ptr(TV(nativeViewPtr), S(columnIndex), S(rowIndex));
-        return reinterpret_cast<jlong>(pSubTable);
+        Table* pSubtable = LangBindHelper::get_subtable_ptr(TV(nativeViewPtr), S(columnIndex), S(rowIndex));
+        return reinterpret_cast<jlong>(pSubtable);
     } CATCH_STD()
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_tightdb_TableView_nativeClearSubTable(
+JNIEXPORT void JNICALL Java_com_tightdb_TableView_nativeClearSubtable(
    JNIEnv* env, jobject, jlong nativeViewPtr, jlong columnIndex, jlong rowIndex)
 {
     if (!VIEW_VALID(env, nativeViewPtr) ||
@@ -740,7 +740,7 @@ JNIEXPORT jstring JNICALL Java_com_tightdb_TableView_nativeToString(
     try {
        std::ostringstream ss;
        ss.sync_with_stdio(false); // for performance
-       tv->to_string(ss, maxRows);
+       tv->to_string(ss, S(maxRows));
        const std::string str = ss.str();
        return env->NewStringUTF(str.c_str());
     } CATCH_STD()
@@ -755,7 +755,7 @@ JNIEXPORT jstring JNICALL Java_com_tightdb_TableView_nativeRowToString(
         return NULL;
     try {
         std::ostringstream ss;
-        tv->row_to_string(rowIndex, ss);
+        tv->row_to_string(S(rowIndex), ss);
         const std::string str = ss.str();
         return env->NewStringUTF(str.c_str());
     } CATCH_STD()

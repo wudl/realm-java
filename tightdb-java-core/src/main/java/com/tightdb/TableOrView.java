@@ -1,6 +1,5 @@
 package com.tightdb;
 
-import java.nio.ByteBuffer;
 import java.util.Date;
 
 /**
@@ -9,6 +8,8 @@ import java.util.Date;
 public interface TableOrView {
 
     void clear();
+    
+    void close();
 
     /**
      * Returns the number of entries of the table/view.
@@ -119,11 +120,11 @@ public interface TableOrView {
 
     ColumnType getMixedType(long columnIndex, long rowIndex);
 
-    Table getSubTable(long columnIndex, long rowIndex);
+    Table getSubtable(long columnIndex, long rowIndex);
 
-    void clearSubTable(long columnIndex, long rowIndex);
+    void clearSubtable(long columnIndex, long rowIndex);
 
-    long getSubTableSize(long columnIndex, long rowIndex);
+    long getSubtableSize(long columnIndex, long rowIndex);
 
     /**
      * Sets the long value for a particular cell identified by columnIndex and
@@ -265,6 +266,5 @@ public interface TableOrView {
     long lookup(String value);
 
     long count(long columnIndex, String value);
-
 
 }
