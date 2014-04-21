@@ -2,6 +2,112 @@
 Remember to increase the TIGHTDB_JNI_VERSION in com_tightdb_internal_Util.cpp and com.tightdb.internal.Util.java
       when the JNI interface is changed.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Template
+=============================================================
+x.x.x Release notes (yyyy—MM-dd)
+
+Java
+----
+The Java API has been updated and your code will break!
+
+### Bugfixes:
+
+* None.
+
+### API breaking changes:
+
+* `???`
+
+### Enhancements:
+
+* `???`
+
+-------------
+
+### Internals:
+
+* `???`
+
+=============================================================
+0.6.0 Release notes (yyyy—MM-dd)
+
+Java
+----
+
+### Bugfixes:
+
+* None.
+
+### API breaking changes:
+
+* None.
+
+### Enhancements:
+
+* `maximumDate` has been added to `Table`, `TableView` and `Query`
+* `minimumDate` has been added to `Table`, `TableView` and `Query`
+
+-------------
+
+### Internals:
+
+* `???`
+
+=============================================================
+0.5.0 Release notes (2014-04-02)
+
+Java
+----
+Release due to update of C++ (core) library.
+
+### Bugfixes:
+
+* None.
+
+### API breaking changes:
+
+* None.
+
+### Enhancements:
+
+* None.
+
+-------------
+
+### Internals:
+
+* Remove obsolete function `Java_com_tightdb_internal_Util_nativeGetVersion()`
+
+
+
+
+25-March-2014:
+=================
++ Group, SharedGroup, Table, TableView & Query now implements Closeable
+
+06-February-2014:
+=================
++ Added get-version and set-version to build.sh.
+
+04-February-2014:
+=================
++ Query.subtable() and Query.endSubtable() is now implemented.
+! API Breaking change: The following methods in both Table and TableView class
+  has been renamed to be consistent with other methods:
+  - sumInt()     -> sumLong().
+  - maximumInt() -> maximumLong().
+  - minimumInt() -> minimumLong().
+  - averageInt() -> averageLong().
+ + Accessing a TableView after it's parent table has been changed, is now detected,
+   and an exception is thrown.
+ + Version API introduced. Not to be documented yet.
+
+18-December-2013:
+=================
+! Bugfix: Table and TableView's findFirst*() methods now correctly returns -1
+on 32 bit architectures when the value can't be found.
+
 12-December-2013:
 ================
 ! BREAKING CHANGE: SubTableSchema renamed to SubtableSchema.
@@ -113,7 +219,7 @@ Remember to increase the TIGHTDB_JNI_VERSION in com_tightdb_internal_Util.cpp an
 + Added Group.toString(), toJson(), equals().
 + Added Mixed.getReadableValue().
 + Added SharedGroup.hasChanged().
-+ Added validation of parameters in all methods. Exceptions are now thrown if invalid parameters are passed. 
++ Added validation of parameters in all methods. Exceptions are now thrown if invalid parameters are passed.
 
 06-September-2013:
 =================
@@ -143,7 +249,7 @@ Remember to increase the TIGHTDB_JNI_VERSION in com_tightdb_internal_Util.cpp an
 13-August-2013:
 ===============
 + Table.add() now returns row index of the added row.
-! BREAKING CHANGE: Group() now takes a new OpenMode parameter and not a boolean. 
+! BREAKING CHANGE: Group() now takes a new OpenMode parameter and not a boolean.
   It now supports multiple ways to open a group. (ReadOnly, ReadWrite, WriteNoCreate).
 + Added Group.commit().
 + Added Group.equals().
@@ -160,7 +266,7 @@ Remember to increase the TIGHTDB_JNI_VERSION in com_tightdb_internal_Util.cpp an
 06-06-2013:
 ===========
 +- at() in Table and TableView is now deprecated. Use get() instead.
-+  added SharedGroup::close() method which will do a rollback() if needed. 
++  added SharedGroup::close() method which will do a rollback() if needed.
    Meant to be used in a finally {} clause after a transaction.
 
 16-05-2013:

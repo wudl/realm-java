@@ -393,6 +393,8 @@ public class DynTableExamples {
         // Sort descending
         view = table.getSortedView(SCOEW_COLUMN_INDEX, Order.descending);
         Assert(view.getString(USERNAME_COLUMN_INDEX, 0).equals("tarzan"));
+        // @@EndShow@@
+        // @@EndExample@@
     }
 
     public static void setIndexExample(){
@@ -859,7 +861,7 @@ public class DynTableExamples {
         table.add("user3", 327, false);
 
         // The sum of all values in column 1
-        long totalScore = table.sumInt(1);
+        long totalScore = table.sumLong(1);
         // @@EndShow@@
         // @@EndExample@@
     }
@@ -877,7 +879,7 @@ public class DynTableExamples {
         table.add("user3", 327, false);
 
         // The maximum score in column 1
-        long maxScore = table.maximumInt(1);
+        long maxScore = table.maximumLong(1);
         // @@EndShow@@
         // @@EndExample@@
     }
@@ -895,7 +897,7 @@ public class DynTableExamples {
         table.add("user3", 327, false);
 
         // The minimum score in column 1
-        long minScore = table.minimumInt(1);
+        long minScore = table.minimumLong(1);
         // @@EndShow@@
         // @@EndExample@@
     }
@@ -913,7 +915,7 @@ public class DynTableExamples {
         table.add("user3", 327, false);
 
         // The average score in column 1
-        double avgScore = table.averageInt(1); // Returns a double
+        double avgScore = table.averageLong(1); // Returns a double
         // @@EndShow@@
         // @@EndExample@@
     }

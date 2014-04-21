@@ -25,11 +25,11 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeSize
 
 /*
  * Class:     com_tightdb_TableView
- * Method:    Java_com_tightdb_TableView_nativeGetSourceRowIndex
- * Signature: (J)J
+ * Method:    nativeGetSourceRowIndex
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetSourceRowIndex
- (JNIEnv *, jobject, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_tightdb_TableView
@@ -46,11 +46,11 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetColumnCount
  */
 JNIEXPORT jstring JNICALL Java_com_tightdb_TableView_nativeGetColumnName
   (JNIEnv *, jobject, jlong, jlong);
-    
+
 /*
  * Class:     com_tightdb_TableView
  * Method:    nativeGetColumnIndex
- * Signature: (J)J;
+ * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeGetColumnIndex
   (JNIEnv *, jobject, jlong, jstring);
@@ -441,6 +441,22 @@ JNIEXPORT jdouble JNICALL Java_com_tightdb_TableView_nativeAverageDouble
 
 /*
  * Class:     com_tightdb_TableView
+ * Method:    nativeMaximumDate
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeMaximumDate
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_TableView
+ * Method:    nativeMinimumDate
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeMinimumDate
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_TableView
  * Method:    nativeSort
  * Signature: (JJZ)V
  */
@@ -486,6 +502,14 @@ JNIEXPORT jstring JNICALL Java_com_tightdb_TableView_nativeRowToString
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_TableView_nativeWhere
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_tightdb_TableView
+ * Method:    nativePivot
+ * Signature: (JJJIJ)V
+ */
+JNIEXPORT void JNICALL Java_com_tightdb_TableView_nativePivot
+  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jlong);
 
 #ifdef __cplusplus
 }

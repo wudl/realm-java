@@ -18,7 +18,7 @@ JNIEXPORT void JNICALL Java_com_tightdb_TableQuery_nativeClose
 /*
  * Class:     com_tightdb_TableQuery
  * Method:    nativeValidateQuery
- * Signature: (J)V
+ * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_com_tightdb_TableQuery_nativeValidateQuery
   (JNIEnv *, jobject, jlong);
@@ -49,10 +49,10 @@ JNIEXPORT void JNICALL Java_com_tightdb_TableQuery_nativeEndGroup
 
 /*
  * Class:     com_tightdb_TableQuery
- * Method:    nativeSubTable
+ * Method:    nativeSubtable
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_tightdb_TableQuery_nativeSubTable
+JNIEXPORT void JNICALL Java_com_tightdb_TableQuery_nativeSubtable
   (JNIEnv *, jobject, jlong, jlong);
 
 /*
@@ -453,6 +453,22 @@ JNIEXPORT jdouble JNICALL Java_com_tightdb_TableQuery_nativeMinimumDouble
  * Signature: (JJJJJ)D
  */
 JNIEXPORT jdouble JNICALL Java_com_tightdb_TableQuery_nativeAverageDouble
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_TableQuery
+ * Method:    nativeMaximumDate
+ * Signature: (JJJJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableQuery_nativeMaximumDate
+  (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_TableQuery
+ * Method:    nativeMinimumDate
+ * Signature: (JJJJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_TableQuery_nativeMinimumDate
   (JNIEnv *, jobject, jlong, jlong, jlong, jlong, jlong);
 
 /*

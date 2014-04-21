@@ -245,8 +245,8 @@ CATEGORIES :
                 See also {@link g_dyn_table_is_empty}.
   - g_dyn_table_optimize:
       NAMES    : optimize
-      SUMMARY  : *g_dyn_table_optimize_summary
-      DESCR    : *g_dyn_table_optimize_descr
+      SUMMARY  : *g_table_optimize_summary
+      DESCR    : *g_table_optimize_descr
       EXAMPLES:
       - CODE   : ex_java_dyn_table_optimize
         DESCR  :
@@ -700,7 +700,7 @@ CATEGORIES :
       SUMMARY  : *g_dyn_table_sum_summary
       DESCR    : *g_dyn_table_sum_descr
       SIGNATURE: |
-                 long   sum(long columnIndex)
+                 long   sumLong(long columnIndex)
                  double sumFloat(long columnIndex)
                  double sumDouble(long columnIndex)
       PARAMS:
@@ -716,21 +716,23 @@ CATEGORIES :
   - g_dyn_table_maximum:
   - g_dyn_table_maximum_float:
   - g_dyn_table_maximum_double:
+  - g_dyn_table_maximum_date:
       TITLE    : maximum*
-      NAMES    : [maximum, maximumFloat, maximumDouble]
+      NAMES    : [maximum, maximumFloat, maximumDouble, maximumDate]
       SUMMARY  : *g_dyn_table_maximum_summary
       DESCR    : *g_dyn_table_maximum_descr
       SIGNATURE: |
-                 long   maximum(long columnIndex)
+                 long   maximumLong(long columnIndex)
                  float  maximumFloat(long columnIndex)
                  double maximumDouble(long columnIndex)
+                 Date   maximumDate(long columnIndex)
       CONST    : True
       PARAMS:
       - NAME   : columnIndex
         TYPES  : long
         DESCR  : Column index.
       RETURN:
-        TYPES  : [long, float, double]
+        TYPES  : [long, float, double, Date]
         DESCR  : The maximum value.
       EXAMPLES:
       - CODE   : ex_java_dyn_table_maximum
@@ -738,20 +740,22 @@ CATEGORIES :
   - g_dyn_table_minimum:
   - g_dyn_table_minimum_float:
   - g_dyn_table_minimum_double:
+  - g_dyn_table_minimum_date:
       TITLE    : minimum*
-      NAMES    : [minimum, minimumFloat, minimumDouble]
+      NAMES    : [minimum, minimumFloat, minimumDouble, minimumDate]
       SUMMARY  : *g_dyn_table_minimum_summary
       DESCR    : *g_dyn_table_minimum_descr
       SIGNATURE: |
-                 long   minimum(long columnIndex)
+                 long   minimumLong(long columnIndex)
                  float  minimumFloat(long columnIndex)
                  double minimumDouble(long columnIndex)
+                 Date   minimumDate(long columnIndex)
       PARAMS:
       - NAME   : columnIndex
         TYPES  : long
         DESCR  : Column index.
       RETURN:
-        TYPES  : [long, float, double]
+        TYPES  : [long, float, double, Date]
         DESCR  : The minimum value.
       EXAMPLES:
       - CODE   : ex_java_dyn_table_minimum
@@ -764,7 +768,7 @@ CATEGORIES :
       SUMMARY  : *g_dyn_table_average_summary
       DESCR    : *g_dyn_table_average_descr
       SIGNATURE: |
-                 double average(long columnIndex)
+                 double averageLong(long columnIndex)
                  double averageFloat(long columnIndex)
                  double averageDouble(long columnIndex)
       PARAMS:

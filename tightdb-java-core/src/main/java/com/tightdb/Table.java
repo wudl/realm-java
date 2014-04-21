@@ -1,14 +1,11 @@
 package com.tightdb;
 
+import java.io.Closeable;
 import java.util.Date;
+
 
 import com.tightdb.TableView.Order;
 import com.tightdb.typed.TightDB;
-
-/*
- Add isEqual(Table)
-
- */
 
 /**
  * This class is a base class for all TightDB tables. The class supports all low
@@ -45,7 +42,7 @@ import com.tightdb.typed.TightDB;
  *
  */
 
-public class Table implements TableOrView, TableSchema {
+public class Table implements TableOrView, TableSchema, Closeable {
 
     public static final long INFINITE = -1;
 
@@ -217,12 +214,6 @@ public class Table implements TableOrView, TableSchema {
 
     /**
      * Updates a table specification from a Table specification structure.
-     * Supported types - refer to @see ColumnType.
-     *
-     * @param columnType
-     *            data type of the column @see <code>ColumnType</code>
-     * @param columnName
-     *            name of the column. Duplicate column name is not allowed.
      */
     public void updateFromSpec(TableSpec tableSpec) {
         if (immutable) throwImmutable();
@@ -309,7 +300,7 @@ public class Table implements TableOrView, TableSchema {
     @Override
     public long getColumnIndex(String columnName) {
         if (columnName == null)
-            throw new NullPointerException("Column name can not be null.");
+            throw new IllegalArgumentException("Column name can not be null.");
         return nativeGetColumnIndex(nativePtr, columnName);
     }
     
@@ -626,14 +617,14 @@ public class Table implements TableOrView, TableSchema {
                 throw new RuntimeException("Currently ByteBuffer must be allocateDirect().");   // FIXME: support other than allocateDirect
         }
 
-        */
+         */
 
         public void insertBinary(long columnIndex, long rowIndex, byte[] data) {
             if (immutable) throwImmutable();
             if(data != null)
                 nativeInsertByteArray(nativePtr, columnIndex, rowIndex, data);
             else
-                throw new NullPointerException("byte[] must not be null. Alternatively insert empty array.");
+                throw new IllegalArgumentException("byte[] must not be null. Alternatively insert empty array.");
         }
 
         public void insertSubtable(long columnIndex, long rowIndex, Object[][] values) {
@@ -663,9 +654,9 @@ public class Table implements TableOrView, TableSchema {
     protected native void nativeInsertMixed(long nativeTablePtr, long columnIndex, long rowIndex, Mixed mixed);
 
 
-   /* public void insertBinary(long columnIndex, long rowIndex, byte[] data) {
+    /* public void insertBinary(long columnIndex, long rowIndex, byte[] data) {
         if (data == null)
-            throw new NullPointerException("Null Array");
+            throw new IllegalArgumentException("Null Array");
         if (immutable) throwImmutable();
         nativeInsertByteArray(nativePtr, columnIndex, rowIndex, data);
     }*/
@@ -747,7 +738,7 @@ public class Table implements TableOrView, TableSchema {
     }
 
     protected native ByteBuffer nativeGetByteBuffer(long nativeTablePtr, long columnIndex, long rowIndex);
-    */
+     */
 
     @Override
     public byte[] getBinaryByteArray(long columnIndex, long rowIndex) {
@@ -868,6 +859,8 @@ public class Table implements TableOrView, TableSchema {
 
     @Override
     public void setDate(long columnIndex, long rowIndex, Date date) {
+        if (date == null)
+            throw new IllegalArgumentException("Null Date is not allowed.");
         if (immutable) throwImmutable();
         nativeSetDate(nativePtr, columnIndex, rowIndex, date.getTime() / 1000);
     }
@@ -877,7 +870,7 @@ public class Table implements TableOrView, TableSchema {
     @Override
     public void setString(long columnIndex, long rowIndex, String value) {
         if (value == null)
-            throw new NullPointerException("Null String is not allowed.");
+            throw new IllegalArgumentException("Null String is not allowed.");
         if (immutable) throwImmutable();
         nativeSetString(nativePtr, columnIndex, rowIndex, value);
     }
@@ -900,7 +893,7 @@ public class Table implements TableOrView, TableSchema {
     public void setBinaryByteBuffer(long columnIndex, long rowIndex, ByteBuffer data) {
         if (immutable) throwImmutable();
         if (data == null)
-            throw new NullPointerException("Null array");
+            throw new IllegalArgumentException("Null array");
         if (data.isDirect())
             nativeSetByteBuffer(nativePtr, columnIndex, rowIndex, data);
         else
@@ -908,14 +901,14 @@ public class Table implements TableOrView, TableSchema {
     }
 
     protected native void nativeSetByteBuffer(long nativeTablePtr, long columnIndex, long rowIndex, ByteBuffer data);
-    */
+     */
 
 
     @Override
     public void setBinaryByteArray(long columnIndex, long rowIndex, byte[] data) {
         if (immutable) throwImmutable();
         if (data == null)
-            throw new NullPointerException("Null Array");
+            throw new IllegalArgumentException("Null Array");
         nativeSetByteArray(nativePtr, columnIndex, rowIndex, data);
     }
 
@@ -934,7 +927,7 @@ public class Table implements TableOrView, TableSchema {
     public void setMixed(long columnIndex, long rowIndex, Mixed data) {
         if (immutable) throwImmutable();
         if (data == null)
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         nativeSetMixed(nativePtr, columnIndex, rowIndex, data);
     }
 
@@ -978,28 +971,28 @@ public class Table implements TableOrView, TableSchema {
 
     // Integers
     @Override
-    public long sumInt(long columnIndex) {
+    public long sumLong(long columnIndex) {
         return nativeSumInt(nativePtr, columnIndex);
     }
 
     protected native long nativeSumInt(long nativePtr, long columnIndex);
 
     @Override
-    public long maximumInt(long columnIndex) {
+    public long maximumLong(long columnIndex) {
         return nativeMaximumInt(nativePtr, columnIndex);
     }
 
     protected native long nativeMaximumInt(long nativePtr, long columnIndex);
 
     @Override
-    public long minimumInt(long columnIndex) {
+    public long minimumLong(long columnIndex) {
         return nativeMinimumInt(nativePtr, columnIndex);
     }
 
     protected native long nativeMinimumInt(long nativePtr, long columnnIndex);
 
     @Override
-    public double averageInt(long columnIndex) {
+    public double averageLong(long columnIndex) {
         return nativeAverageInt(nativePtr, columnIndex);
     }
 
@@ -1062,6 +1055,22 @@ public class Table implements TableOrView, TableSchema {
     }
 
     protected native double nativeAverageDouble(long nativePtr, long columnIndex);
+
+    // Date aggregates
+
+    @Override
+    public Date maximumDate(long columnIndex) {
+        return new Date(nativeMaximumDate(nativePtr, columnIndex) * 1000);
+    }
+
+    protected native long nativeMaximumDate(long nativePtr, long columnIndex);
+
+    @Override
+    public Date minimumDate(long columnIndex) {
+        return new Date(nativeMinimumDate(nativePtr, columnIndex) * 1000);
+    }
+
+    protected native long nativeMinimumDate(long nativePtr, long columnnIndex);
 
 
     //
@@ -1250,7 +1259,7 @@ public class Table implements TableOrView, TableSchema {
     @Override
     public long lookup(String value) {
         if (value == null)
-            throw new NullPointerException("String must not be null.");
+            throw new IllegalArgumentException("String must not be null.");
         if (this.getColumnType(0) != ColumnType.STRING)
             throw new UnsupportedOperationException("lookup() requires column 0 is a String column.");
         return nativeLookup(nativePtr, value);
@@ -1271,6 +1280,20 @@ public class Table implements TableOrView, TableSchema {
 
     protected native long nativeLowerBoundInt(long nativePtr, long columnIndex, long value);
     protected native long nativeUpperBoundInt(long nativePtr, long columnIndex, long value);
+    
+    
+    @Override
+    public Table pivot(long stringCol, long intCol, PivotType pivotType){
+        if (! this.getColumnType(stringCol).equals(ColumnType.STRING ))
+            throw new UnsupportedOperationException("Group by column must be of type String");
+        if (! this.getColumnType(intCol).equals(ColumnType.INTEGER ))
+            throw new UnsupportedOperationException("Aggregeation column must be of type Int");
+        Table result = new Table();
+        nativePivot(nativePtr, stringCol, intCol, pivotType.value, result.nativePtr);
+        return result;
+    }
+
+    protected native void nativePivot(long nativeTablePtr, long sringCol, long intCol, int pivotType, long resultPtr);
 
     //
 
@@ -1287,6 +1310,7 @@ public class Table implements TableOrView, TableSchema {
     }
 
     protected native long nativeGetDistinctView(long nativePtr, long columnIndex);
+
 
     // Optimize
     public void optimize() {

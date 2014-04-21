@@ -1,3 +1,5 @@
+#include <tightdb/util/safe_int_ops.hpp>
+
 #include "util.hpp"
 #include "com_tightdb_Group.h"
 
@@ -114,12 +116,10 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_Group_nativeSize(
 JNIEXPORT jboolean JNICALL Java_com_tightdb_Group_nativeHasTable(
     JNIEnv* env, jobject, jlong nativeGroupPtr, jstring jTableName)
 {
-    JStringAccessor tableName(env, jTableName);
-    if (tableName) {
-        try {
-            return G(nativeGroupPtr)->has_table(tableName);
-        } CATCH_STD()
-    }
+    try {
+        JStringAccessor tableName(env, jTableName); // throws
+        return G(nativeGroupPtr)->has_table(tableName);
+    } CATCH_STD()
     return false;
 }
 
@@ -135,13 +135,11 @@ JNIEXPORT jstring JNICALL Java_com_tightdb_Group_nativeGetTableName(
 JNIEXPORT jlong JNICALL Java_com_tightdb_Group_nativeGetTableNativePtr(
     JNIEnv *env, jobject, jlong nativeGroupPtr, jstring name)
 {
-    JStringAccessor tableName(env, name);
-    if (tableName) {
-        try {
-            Table* pTable = LangBindHelper::get_table_ptr(G(nativeGroupPtr), tableName);
-            return (jlong)pTable;
-        } CATCH_STD()
-    }
+    try {
+        JStringAccessor tableName(env, name); // throws
+        Table* pTable = LangBindHelper::get_table_ptr(G(nativeGroupPtr), tableName);
+        return (jlong)pTable;
+    } CATCH_STD()
     return 0;
 }
 
@@ -199,14 +197,7 @@ JNIEXPORT jobject JNICALL Java_com_tightdb_Group_nativeWriteToByteBuffer(
     BinaryData buffer;
     try {
         buffer = G(nativeGroupPtr)->write_to_mem();
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
-#endif
-        if (buffer.size() <= MAX_JLONG) {
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
+        if (util::int_less_than_or_equal(buffer.size(), MAX_JLONG)) {
             return env->NewDirectByteBuffer(const_cast<char*>(buffer.data()), static_cast<jlong>(buffer.size()));
             // Data is now owned by the Java DirectByteBuffer - so we must not free it.
         }

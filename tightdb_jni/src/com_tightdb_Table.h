@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 #undef com_tightdb_Table_INFINITE
-#define com_tightdb_Table_INFINITE -1i64
+#define com_tightdb_Table_INFINITE -1LL
 /*
  * Class:     com_tightdb_Table
  * Method:    createNative
@@ -120,14 +120,14 @@ JNIEXPORT jobject JNICALL Java_com_tightdb_Table_nativeGetTableSpec
  */
 JNIEXPORT jstring JNICALL Java_com_tightdb_Table_nativeGetColumnName
   (JNIEnv *, jobject, jlong, jlong);
-    
+
 /*
  * Class:     com_tightdb_Table
  * Method:    nativeGetColumnIndex
- * Signature: (J)J
+ * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeGetColumnIndex
-    (JNIEnv *, jobject, jlong, jstring);
+  (JNIEnv *, jobject, jlong, jstring);
 
 /*
  * Class:     com_tightdb_Table
@@ -168,6 +168,14 @@ JNIEXPORT void JNICALL Java_com_tightdb_Table_nativeMoveLastOver
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeAddEmptyRow
   (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_Table
+ * Method:    nativeGetSortedView
+ * Signature: (JJZ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeGetSortedView
+  (JNIEnv *, jobject, jlong, jlong, jboolean);
 
 /*
  * Class:     com_tightdb_Table
@@ -539,6 +547,22 @@ JNIEXPORT jdouble JNICALL Java_com_tightdb_Table_nativeAverageDouble
 
 /*
  * Class:     com_tightdb_Table
+ * Method:    nativeMaximumDate
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeMaximumDate
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_Table
+ * Method:    nativeMinimumDate
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeMinimumDate
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_tightdb_Table
  * Method:    nativeCountLong
  * Signature: (JJJ)J
  */
@@ -699,19 +723,19 @@ JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeUpperBoundInt
 
 /*
  * Class:     com_tightdb_Table
+ * Method:    nativePivot
+ * Signature: (JJJIJ)V
+ */
+JNIEXPORT void JNICALL Java_com_tightdb_Table_nativePivot
+  (JNIEnv *, jobject, jlong, jlong, jlong, jint, jlong);
+
+/*
+ * Class:     com_tightdb_Table
  * Method:    nativeGetDistinctView
  * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeGetDistinctView
   (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_tightdb_Table
- * Method:    nativeGetSortedView
- * Signature: (JJ)J
- */
-JNIEXPORT jlong JNICALL Java_com_tightdb_Table_nativeGetSortedView
-  (JNIEnv *, jobject, jlong, jlong, jboolean);
 
 /*
  * Class:     com_tightdb_Table

@@ -65,17 +65,17 @@ std::string num_to_string(T pNumber)
 }
 
 
-#define MAX_JLONG  9223372036854775807
-#define MIN_JLONG -9223372036854775808
-#define MAX_JINT   2147483647
+#define MAX_JLONG  0x7FFFFFFFFFFFFFFFLL
+#define MIN_JLONG -0x8000000000000000LL
+#define MAX_JINT   0x7FFFFFFFL
 #define MAX_JSIZE  MAX_JINT
 
 // Helper macros for better readability
-#define S(x) static_cast<size_t>(x)
-#define TBL(x) reinterpret_cast<tightdb::Table*>(x)
-#define TV(x) reinterpret_cast<tightdb::TableView*>(x)
-#define Q(x) reinterpret_cast<tightdb::Query*>(x)
-#define G(x) reinterpret_cast<tightdb::Group*>(x)
+#define S(x)    static_cast<size_t>(x)
+#define TBL(x)  reinterpret_cast<tightdb::Table*>(x)
+#define TV(x)   reinterpret_cast<tightdb::TableView*>(x)
+#define Q(x)    reinterpret_cast<tightdb::Query*>(x)
+#define G(x)    reinterpret_cast<tightdb::Group*>(x)
 
 // Exception handling
 
@@ -83,6 +83,7 @@ enum ExceptionKind {
     ClassNotFound = 0,
     NoSuchField = 1,
     NoSuchMethod = 2,
+
     IllegalArgument = 3,
     IOFailed = 4,
     FileNotFound = 5,
@@ -120,12 +121,11 @@ extern void jprint(JNIEnv *env, char *txt);
 
 // Check parameters
 
-#define TABLE_VALID(env,ptr)                        TableIsValid(env, ptr)
+#define TABLE_VALID(env,ptr)    TableIsValid(env, ptr)
 
 #if CHECK_PARAMETERS
 
-#define ROW_INDEXES_VALID(env,ptr,start,end, range) RowIndexesValid(env, ptr, start, end, range)
-
+#define ROW_INDEXES_VALID(env,ptr,start,end, range)             RowIndexesValid(env, ptr, start, end, range)
 #define ROW_INDEX_VALID(env,ptr,row)                            RowIndexValid(env, ptr, row)
 #define TBL_AND_ROW_INDEX_VALID(env,ptr,row)                    TblRowIndexValid(env, ptr, row)
 #define TBL_AND_ROW_INDEX_VALID_OFFSET(env,ptr,row, offset)     TblRowIndexValid(env, ptr, row, offset)
@@ -139,22 +139,34 @@ extern void jprint(JNIEnv *env, char *txt);
 #define INDEX_AND_TYPE_VALID(env,ptr,col,row,type)              IndexAndTypeValid(env, ptr, col, row, type, false)
 #define TBL_AND_INDEX_AND_TYPE_VALID(env,ptr,col,row,type)      TblIndexAndTypeValid(env, ptr, col, row, type, false)
 #define INDEX_AND_TYPE_VALID_MIXED(env,ptr,col,row,type)        IndexAndTypeValid(env, ptr, col, row, type, true)
-#define TBL_AND_INDEX_AND_TYPE_VALID_MIXED(env,ptr,col,row,type)TblIndexAndTypeValid(env, ptr, col, row, type, true)
+#define TBL_AND_INDEX_AND_TYPE_VALID_MIXED(env,ptr,col,row,type) TblIndexAndTypeValid(env, ptr, col, row, type, true)
 #define TBL_AND_INDEX_AND_TYPE_INSERT_VALID(env,ptr,col,row,type) TblIndexAndTypeInsertValid(env, ptr, col, row, type)
 
 #else
 
-#define ROW_INDEXES_VALID(env,ptr,row, start,end,range) (true)
-#define ROW_INDEX_VALID(env,ptr,row) (true)
-#define TBL_AND_COL_INDEX_VALID(env,ptr,col) (true)
-#define TBL_AND_COL_INDEX_AND_TYPE_VALID(env,ptr,col) (true)
-#define INDEX_VALID(env,ptr,col,row) (true)
-#define INDEX_INSERT_VALID(env,ptr,col,row) (true)
-#define INDEX_AND_TYPE_VALID(env,ptr,col,row,type) (true)
-#define INDEX_AND_TYPE_INSERT_VALID(env,ptr,col,row,type) (true)
+#define ROW_INDEXES_VALID(env,ptr,start,end, range)             (true)
+#define ROW_INDEX_VALID(env,ptr,row)                            (true)
+#define TBL_AND_ROW_INDEX_VALID(env,ptr,row)                    (true)
+#define TBL_AND_ROW_INDEX_VALID_OFFSET(env,ptr,row, offset)     (true)
+#define COL_INDEX_VALID(env,ptr,col)                            (true)
+#define TBL_AND_COL_INDEX_VALID(env,ptr,col)                    (true)
+#define COL_INDEX_AND_TYPE_VALID(env,ptr,col,type)              (true)
+#define TBL_AND_COL_INDEX_AND_TYPE_VALID(env,ptr,col, type)     (true)
+#define INDEX_VALID(env,ptr,col,row)                            (true)
+#define TBL_AND_INDEX_VALID(env,ptr,col,row)                    (true)
+#define TBL_AND_INDEX_INSERT_VALID(env,ptr,col,row)             (true)
+#define INDEX_AND_TYPE_VALID(env,ptr,col,row,type)              (true)
+#define TBL_AND_INDEX_AND_TYPE_VALID(env,ptr,col,row,type)      (true)
+#define INDEX_AND_TYPE_VALID_MIXED(env,ptr,col,row,type)        (true)
+#define TBL_AND_INDEX_AND_TYPE_VALID_MIXED(env,ptr,col,row,type) (true)
+#define TBL_AND_INDEX_AND_TYPE_INSERT_VALID(env,ptr,col,row,type) (true)
 
 #endif
 
+
+inline jlong to_jlong_or_not_found(size_t res) {
+    return (res == tightdb::not_found) ? jlong(-1) : jlong(res);
+}
 
 template <class T>
 inline bool TableIsValid(JNIEnv* env, T* objPtr)
@@ -367,18 +379,11 @@ jstring to_jstring(JNIEnv*, tightdb::StringData);
 
 class JStringAccessor {
 public:
-    JStringAccessor(JNIEnv*, jstring);
+    JStringAccessor(JNIEnv*, jstring);  // throws
 
     operator tightdb::StringData() const TIGHTDB_NOEXCEPT
     {
         return tightdb::StringData(m_data.get(), m_size);
-    }
-
-    // Part of the "safe bool" idiom
-    typedef tightdb::util::UniquePtr<char[]> (JStringAccessor::*unspecified_bool_type);
-    operator unspecified_bool_type() const TIGHTDB_NOEXCEPT
-    {
-        return m_data ? &JStringAccessor::m_data : 0;
     }
 
 private:

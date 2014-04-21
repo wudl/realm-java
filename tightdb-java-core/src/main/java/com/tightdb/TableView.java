@@ -1,6 +1,8 @@
 package com.tightdb;
 
+import java.io.Closeable;
 import java.util.Date;
+
 
 
 /**
@@ -44,7 +46,7 @@ import java.util.Date;
  * The generated class will have more specialized method to do operations on TableView.
  *
  */
-public class TableView implements TableOrView {
+public class TableView implements TableOrView, Closeable {
     protected boolean DEBUG = false; //true;
 
      /**
@@ -149,13 +151,13 @@ public class TableView implements TableOrView {
     /**
      * Returns the 0-based index of a column based on the name.
      *
-     * @param name column name
+     * @param columnName column name
      * @return the index, -1 if not found
      */
     @Override
     public long getColumnIndex(String columnName) {
         if (columnName == null)
-            throw new NullPointerException("Column name can not be null.");
+            throw new IllegalArgumentException("Column name can not be null.");
         return nativeGetColumnIndex(nativePtr, columnName);
     }
     
@@ -672,7 +674,7 @@ public class TableView implements TableOrView {
      * @return the sum of the values in the column
      */
     @Override
-    public long sumInt(long columnIndex){
+    public long sumLong(long columnIndex){
         return nativeSumInt(nativePtr, columnIndex);
     }
 
@@ -688,7 +690,7 @@ public class TableView implements TableOrView {
      * @return the maximum value
      */
     @Override
-    public long maximumInt(long columnIndex){
+    public long maximumLong(long columnIndex){
         return nativeMaximumInt(nativePtr, columnIndex);
     }
 
@@ -704,14 +706,14 @@ public class TableView implements TableOrView {
      * @return the minimum value
      */
     @Override
-    public long minimumInt(long columnIndex){
+    public long minimumLong(long columnIndex){
         return nativeMinimumInt(nativePtr, columnIndex);
     }
 
     protected native long nativeMinimumInt(long nativeViewPtr, long columnIndex);
 
     @Override
-    public double averageInt(long columnIndex) {
+    public double averageLong(long columnIndex) {
         return nativeAverageInt(nativePtr, columnIndex);
     }
 
@@ -778,6 +780,23 @@ public class TableView implements TableOrView {
     }
 
     protected native double nativeAverageDouble(long nativePtr, long columnIndex);
+
+
+    // Date aggregates
+
+    @Override
+    public Date maximumDate(long columnIndex) {
+        return new Date(nativeMaximumDate(nativePtr, columnIndex) * 1000);
+    }
+
+    protected native long nativeMaximumDate(long nativePtr, long columnIndex);
+
+    @Override
+    public Date minimumDate(long columnIndex) {
+        return new Date(nativeMinimumDate(nativePtr, columnIndex) * 1000);
+    }
+
+    protected native long nativeMinimumDate(long nativePtr, long columnnIndex);
 
 
     // Sorting
@@ -859,4 +878,18 @@ public class TableView implements TableOrView {
         // TODO: implement
         throw new RuntimeException("Not implemented yet.");
     }
+    
+    
+    @Override
+    public Table pivot(long stringCol, long intCol, PivotType pivotType){
+        if (! this.getColumnType(stringCol).equals(ColumnType.STRING ))
+            throw new UnsupportedOperationException("Group by column must be of type String");
+        if (! this.getColumnType(intCol).equals(ColumnType.INTEGER ))
+            throw new UnsupportedOperationException("Aggregeation column must be of type Int");
+        Table result = new Table();
+        nativePivot(nativePtr, stringCol, intCol, pivotType.value, result.nativePtr);
+        return result;
+   }
+   
+   protected native void nativePivot(long nativeTablePtr, long sringCol, long intCol, int pivotType, long result);
 }

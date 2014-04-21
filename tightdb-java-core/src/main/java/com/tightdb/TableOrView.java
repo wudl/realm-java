@@ -195,13 +195,13 @@ public interface TableOrView {
     //Increments all rows in the specified column with the provided value
     void adjust(long columnIndex, long value);
 
-    long sumInt(long columnIndex);
+    long sumLong(long columnIndex);
 
-    long maximumInt(long columnIndex);
+    long maximumLong(long columnIndex);
 
-    long minimumInt(long columnIndex);
+    long minimumLong(long columnIndex);
 
-    double averageInt(long columnIndex);
+    double averageLong(long columnIndex);
 
 
     double sumFloat(long columnIndex);
@@ -220,6 +220,11 @@ public interface TableOrView {
     double minimumDouble(long columnIndex);
 
     double averageDouble(long columnIndex);
+
+
+    Date maximumDate(long columnIndex);
+
+    Date minimumDate(long columnIndex);
 
 
     long findFirstLong(long columnIndex, long value);
@@ -266,5 +271,21 @@ public interface TableOrView {
     long lookup(String value);
 
     long count(long columnIndex, String value);
+    
+    public enum PivotType {
+        COUNT(0),
+        SUM(1),
+        AVG(2),
+        MIN(3),
+        MAX(4);
+
+        final int value; // Package protected, accessible from Table and TableView
+
+        private PivotType(int value) {
+            this.value = value;
+        }
+    }
+    
+    public Table pivot(long stringCol, long intCol, PivotType pivotType);
 
 }

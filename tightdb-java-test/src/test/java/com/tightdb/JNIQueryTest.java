@@ -15,10 +15,8 @@ public class JNIQueryTest {
 
     void init() {
         table = new Table();
-        TableSpec tableSpec = new TableSpec();
-        tableSpec.addColumn(ColumnType.INTEGER, "number");
-        tableSpec.addColumn(ColumnType.STRING, "name");
-        table.updateFromSpec(tableSpec);
+        table.addColumn(ColumnType.INTEGER, "number");
+        table.addColumn(ColumnType.STRING, "name");
 
         table.add(10, "A");
         table.add(11, "B");
@@ -27,6 +25,16 @@ public class JNIQueryTest {
         table.add(14, "D");
         table.add(16, "D");
         assertEquals(6, table.size());
+    }
+
+    @Test(expectedExceptions=RuntimeException.class)
+    public void shouldThrowOnQueryOnSortedView() {
+
+        init();
+
+        TableView sortedView = table.getSortedView(0, TableView.Order.descending);
+
+        TableView result = sortedView.where().findAll();
     }
 
     @Test
@@ -335,6 +343,35 @@ public class JNIQueryTest {
         try { query.contains(-1, "hey", false).findAll(); fail("-100 column index"); } catch (ArrayIndexOutOfBoundsException e) {}
     }
 
+    @Test
+    public void nullInputQuery() {
+        Table t = new Table();
+        t.addColumn(ColumnType.DATE, "dateCol");
+        t.addColumn(ColumnType.STRING, "stringCol");
+        
+        Date nullDate = null;
+        try { t.where().equalTo(0, nullDate);               fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().notEqualTo(0, nullDate);            fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().greaterThan(0, nullDate);           fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().greaterThanOrEqual(0, nullDate);    fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().lessThan(0, nullDate);              fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().lessThanOrEqual(0, nullDate);       fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().between(0, nullDate, new Date());   fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().between(0, new Date(), nullDate);   fail("Date is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().between(0, nullDate, nullDate);     fail("Dates are null"); } catch (IllegalArgumentException e) { }
+        
+        String nullString = null;
+        try { t.where().equalTo(1, nullString);             fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().equalTo(1, nullString, false);      fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().notEqualTo(1, nullString);          fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().notEqualTo(1, nullString, false);   fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().contains(1, nullString);            fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().contains(1, nullString, false);     fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().beginsWith(1, nullString);          fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().beginsWith(1, nullString, false);   fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().endsWith(1, nullString);            fail("String is null"); } catch (IllegalArgumentException e) { }
+        try { t.where().endsWith(1, nullString, false);     fail("String is null"); } catch (IllegalArgumentException e) { }
+    }
 
 
     @Test
@@ -647,6 +684,75 @@ public class JNIQueryTest {
         TableView view2 = view.where().equalTo(1, "Anderson").findAll();
 
         assertEquals(1, view2.size());
+    }
+
+
+    @Test
+    public void queryWithSubtable() {
+        Table table = new Table();
+        table.addColumn(ColumnType.STRING, "username");
+        table.addColumn(ColumnType.TABLE, "tasks");
+        table.addColumn(ColumnType.STRING, "username2");
+
+        TableSchema tasks = table.getSubtableSchema(1);
+        tasks.addColumn(ColumnType.STRING, "name");
+        tasks.addColumn(ColumnType.INTEGER, "score");
+        tasks.addColumn(ColumnType.BOOLEAN, "completed");
+
+        // Insert some values
+        table.add("Arnold", new Object[][] {{"task1", 120, false},
+                                            {"task2", 321, false},
+                                            {"task3", 78, false}}, "");
+        table.add("Jane", new Object[][] {{"task2", 400, true},
+                                          {"task3", 375, true}}, "");
+        table.add("Erik", new Object[][] {{"task1", 562, true},
+                                          {"task3", 14, false}}, "");
+
+        // Query the table
+        TableView view = table.where().subtable(1).equalTo(2, true).endSubtable().findAll();
+        assertEquals(2, view.size());
+    }
+
+    @Test
+    public void queryWithUnbalancedSubtable() {
+        Table table = new Table();
+        table.addColumn(ColumnType.TABLE, "sub");
+        
+        TableSchema tasks = table.getSubtableSchema(0);
+        tasks.addColumn(ColumnType.STRING, "name");
+        
+        try { table.where().subtable(0).count();               assert(false); } catch (UnsupportedOperationException e) {}
+        try { table.where().endSubtable().count();             assert(false); } catch (UnsupportedOperationException e) {}
+        try { table.where().endSubtable().subtable(0).count(); assert(false); } catch (UnsupportedOperationException e) {}
+        try { table.where().subtable(0).endSubtable().count(); assert(false); } catch (UnsupportedOperationException e) {} 
+    }
+
+    @Test
+    public void maximumDate() {
+
+        Table table = new Table();
+        table.addColumn(ColumnType.DATE, "date");
+
+        table.add(new Date(0));
+        table.add(new Date(10000));
+        table.add(new Date(1000));
+
+        assertEquals(new Date(10000), table.where().maximumDate(0));
+
+    }
+
+    @Test
+    public void minimumDate() {
+
+        Table table = new Table();
+        table.addColumn(ColumnType.DATE, "date");
+
+        table.add(new Date(10000));
+        table.add(new Date(0));
+        table.add(new Date(1000));
+
+        assertEquals(new Date(0), table.where().minimumDate(0));
+
     }
 
 }

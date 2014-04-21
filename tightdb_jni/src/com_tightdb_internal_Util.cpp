@@ -11,8 +11,6 @@ using std::string;
 
 int trace_level = 0;
 
-static int TIGHTDB_JNI_VERSION = 22;
-
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*, void*)
 {
     return JNI_VERSION_1_6;
@@ -26,11 +24,6 @@ JNIEXPORT void JNICALL Java_com_tightdb_internal_Util_nativeSetDebugLevel(JNIEnv
 JNIEXPORT jlong JNICALL Java_com_tightdb_internal_Util_nativeGetMemUsage(JNIEnv*, jclass)
 {
     return GetMemUsage();
-}
-
-JNIEXPORT jint JNICALL Java_com_tightdb_internal_Util_nativeGetVersion(JNIEnv*, jclass)
-{
-    return TIGHTDB_JNI_VERSION;
 }
 
 // -------------------------- Testcases for exception handling
