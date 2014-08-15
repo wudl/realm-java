@@ -3,7 +3,6 @@ package io.realm.processor;
 import java.io.BufferedWriter;
 import java.lang.Override;
 
-//import java.lang.annotation.ElementType;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -25,8 +24,9 @@ import io.realm.base.Ignore;
 
 @SupportedAnnotationTypes({"io.realm.base.RealmClass", "io.realm.base.Ignore"})
 @SupportedSourceVersion(javax.lang.model.SourceVersion.RELEASE_6)
-
 public class RealmProcessor extends AbstractProcessor {
+	
+	RealmSourceCodeGenerator codeGenerator = new RealmSourceCodeGenerator();
 
 	   @Override
 	    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -47,18 +47,35 @@ public class RealmProcessor extends AbstractProcessor {
 
 	            try 
 	            {
-		            JavaFileObject jfo = processingEnv.getFiler().createSourceFile("FirstTest.java"/*classElement.getSimpleName()*/);
-		            BufferedWriter bw = new BufferedWriter(jfo.openWriter());
-		            bw.append("package ");
-		            bw.append(enclosingElement.getSimpleName());
-		            bw.append(";");
-		            bw.newLine();
-		            bw.newLine();
-		            bw.append("public class ");
-		            bw.append(classElement.getSimpleName());
-		            bw.append("{}");
-		            bw.flush();
-		            bw.close();
+	            	PackageElement packageElement = (PackageElement) enclosingElement;
+	            	String qName = packageElement.getQualifiedName().toString();
+	            	
+	            	if (qName != null)
+	            	{
+	            		String qualifiedClassName = qName + classElement.getSimpleName();
+	            		codeGenerator.set_packageName(qName);
+			            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(qualifiedClassName);
+			            codeGenerator.setBufferedWriter(new BufferedWriter(jfo.openWriter()));
+			            
+			            for (Element element : typeElement.getEnclosedElements()) {
+			                if (element.getKind().equals(ElementKind.FIELD)) {
+			                    //ExecutableElement executableElement = (ExecutableElement) element;
+			                    String elementName = element.getSimpleName().toString();
+			                    //if ((elementName.startsWith("set") ||
+			                    //        elementName.startsWith("get")) && !elementName.equals("getClass")) {
+			                    //    accessors.add(executableElement);
+			                    //}
+			                    
+			                    codeGenerator.add_Field(elementName, element);
+			                    
+			                }
+			            }
+
+			            
+			            
+			            
+			            codeGenerator.generate();
+	            	}
 	            }
 	            catch (Exception ex)
 	            {
@@ -69,17 +86,6 @@ public class RealmProcessor extends AbstractProcessor {
 
 	            // Get the getters and setters
 	            /*
-	            Set<ExecutableElement> accessors = new HashSet<ExecutableElement>();
-	            for (Element element : typeElement.getEnclosedElements()) {
-	                if (element.getKind().equals(ElementKind.METHOD)) {
-	                    ExecutableElement executableElement = (ExecutableElement) element;
-	                    String elementName = element.getSimpleName().toString();
-	                    if ((elementName.startsWith("set") ||
-	                            elementName.startsWith("get")) && !elementName.equals("getClass")) {
-	                        accessors.add(executableElement);
-	                    }
-	                }
-	            }
 
 	            System.out.println(accessors);
 	            */
