@@ -2,7 +2,7 @@ package io.realm.processor;
 
 import java.io.BufferedWriter;
 import java.lang.Override;
-
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -12,8 +12,10 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -48,56 +50,57 @@ public class RealmProcessor extends AbstractProcessor {
 	            try 
 	            {
 	            	PackageElement packageElement = (PackageElement) enclosingElement;
-	            	String qName = packageElement.getQualifiedName().toString();
+	            	String qName = packageElement.getQualifiedName().toString()+".autogen";
 	            	
 	            	if (qName != null)
 	            	{
-	            		String qualifiedClassName = qName + classElement.getSimpleName();
+	            		String qualifiedClassName = qName + "."+classElement.getSimpleName();
+	            		qualifiedClassName = qualifiedClassName.replace(".", "/");
+	            		
 	            		codeGenerator.set_packageName(qName);
-			            JavaFileObject jfo = processingEnv.getFiler().createSourceFile(qualifiedClassName);
-			            codeGenerator.setBufferedWriter(new BufferedWriter(jfo.openWriter()));
+	            		codeGenerator.set_className(classElement.getSimpleName().toString());
+	            		
+	            		JavaFileObject jfo = processingEnv.getFiler().createSourceFile(qualifiedClassName /*classElement.getSimpleName()qualifiedClassName*/);
+			            
+			            BufferedWriter bw = new BufferedWriter(jfo.openWriter());
+			            codeGenerator.setBufferedWriter(bw);
 			            
 			            for (Element element : typeElement.getEnclosedElements()) {
 			                if (element.getKind().equals(ElementKind.FIELD)) {
-			                    //ExecutableElement executableElement = (ExecutableElement) element;
-			                    String elementName = element.getSimpleName().toString();
-			                    //if ((elementName.startsWith("set") ||
-			                    //        elementName.startsWith("get")) && !elementName.equals("getClass")) {
-			                    //    accessors.add(executableElement);
-			                    //}
-			                    
-			                    codeGenerator.add_Field(elementName, element);
-			                    
+			                	String elementName = element.getSimpleName().toString();
+			                	VariableElement varElem = (VariableElement)element;
+			                	
+			                	Set<Modifier> modifiers = varElem.getModifiers();
+			                	
+			                	for (Iterator<Modifier> m = modifiers.iterator();m.hasNext();)
+			                	{
+			                		Modifier modifier = m.next();
+			                		if (modifier == Modifier.PRIVATE)
+			                		{
+			                			codeGenerator.add_Field(elementName, varElem);
+			                		}
+			                	}			                    
 			                }
 			            }
-
-			            
-			            
 			            
 			            codeGenerator.generate();
+			            bw.flush();
+			            bw.close();
 	            	}
 	            }
 	            catch (Exception ex)
 	            {
 	            	error("Unable to write file: "+ex.getMessage());
 	            }
-
-	            //PackageElement packageElement = (PackageElement) enclosingElement;
-
-	            // Get the getters and setters
-	            /*
-
-	            System.out.println(accessors);
-	            */
 	        }
 	        
-	        for (Element classElement : roundEnv.getElementsAnnotatedWith(Ignore.class)) {
-	            // Check the annotation was applied to a Class
-	            if (!classElement.getKind().equals(ElementKind.FIELD)) {
-	                error("The Ignore annotation can only be applied to Fields");
-	                return false;
-	            }
-	        }
+//	        for (Element classElement : roundEnv.getElementsAnnotatedWith(Ignore.class)) {
+//	            // Check the annotation was applied to a Class
+//	            if (!classElement.getKind().equals(ElementKind.FIELD)) {
+//	                error("The Ignore annotation can only be applied to Fields");
+//	                return false;
+//	            }
+//	        }
 	        return true;
 	    }
 
