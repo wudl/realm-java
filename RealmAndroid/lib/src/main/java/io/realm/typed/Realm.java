@@ -4,6 +4,7 @@ import com.google.dexmaker.stock.ProxyBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -86,7 +87,7 @@ public class Realm {
     }
 
 
-    private <E> void initTable(Class<E> classSpec) {
+    private void initTable(Class classSpec) {
 
         // Check for table existence
         if(!transaction.hasTable(classSpec.getSimpleName())) {
@@ -153,15 +154,29 @@ public class Realm {
      * @return              The new object
      * @param <E>
      */
-    public <E extends RealmObject> E create(Class<E> classSpec) {
+    public <E extends RealmObject> E create(Class classSpec) {
 
-        initTable(classSpec);
+        //io.realm.tests.typed.entities.User
+        String inClass = classSpec.getCanonicalName();
+        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
 
-        Table table = getTable(classSpec);
+        try {
+            Class<E> clazz = (Class<E>)Class.forName(outClass);
+            Constructor<E> ctor = clazz.getConstructor();
+            E object = ctor.newInstance(new Object[]{});
+            initTable(classSpec);
 
-        long rowIndex = table.addEmptyRow();
+            Table table = getTable(clazz);
 
-        return get(classSpec, rowIndex);
+            long rowIndex = table.addEmptyRow();
+
+            return get(clazz, object, rowIndex);
+        }
+        catch (Exception ex)
+        {
+            System.out.print("Realm.create has failed: "+ex.getMessage());
+        }
+        return null;
     }
 
 
@@ -308,21 +323,14 @@ public class Realm {
 
     }
 
-    <E extends RealmObject> E get(Class<E> clazz, long rowIndex) {
+    <E extends RealmObject> E get(Class<E> clazz, E obj , long rowIndex) {
 
-        E obj = null;
-
-        try {
+ //       try {
             Row row = transaction.getTable(clazz.getSimpleName()).getRow(rowIndex);
-            obj = ProxyBuilder.forClass(clazz)
-                    .parentClassLoader(clazz.getClassLoader())
-                    .dexCache(getBytecodeCache())
-                    .handler(new RealmProxy(this, row))
-                    .build();
             obj.realmSetRow(row);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+ //       } catch (IOException e) {
+ //           e.printStackTrace();
+ //       }
 
 
         return obj;

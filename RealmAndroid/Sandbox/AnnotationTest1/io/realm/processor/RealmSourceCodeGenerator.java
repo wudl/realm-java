@@ -27,7 +27,7 @@ public class RealmSourceCodeGenerator {
 //							             "        Class<?> clazz = getClass().getSuperclass();\n"+
 //							             "        final long columnIndex = realmGetRow().getColumnIndex(\"<+field>\");\n"+
 //							             "        return realmGetRow().get<+etter_type>(columnIndex);\n"+
-                                         "        return realmGetRow().get<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"));\n"+
+                                         "        return <+cast>realmGetRow().get<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"));\n"+
 							             "    }\n"+
 								         "\n";
 	private final String _codeSetter =   "    void set<+field>(<+type> value)\n"+
@@ -94,8 +94,25 @@ public class RealmSourceCodeGenerator {
 		
 		while (fullType.indexOf('.') >= 0) fullType = fullType.substring(fullType.indexOf('.')+1);
 
-		if (fullType.compareTo("int") == 0 || fullType.compareTo("Integer") == 0|| fullType.compareTo("long") == 0)
+		if (fullType.compareTo("int") == 0 || fullType.compareTo("Integer") == 0)
+		{
 			fullType = "Long";
+			fragment = fragment.replace("<+cast>","(Integer)");
+		}
+		else if (fullType.compareTo("byte") == 0 || fullType.compareTo("Byte") == 0)
+		{
+			fullType = "Long";
+			fragment = fragment.replace("<+cast>","(Byte)");
+		}
+
+		{
+			fragment = fragment.replace("<+cast>","");
+		}
+		
+		if (fullType.compareTo("long") == 0)
+		{
+			fullType = "Long";
+		}
 		
 		if (fullType.compareTo("float") == 0)
 			fullType = "Float";

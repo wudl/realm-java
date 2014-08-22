@@ -4,7 +4,6 @@ import java.util.Date;
 
 
 @io.realm.base.RealmClass
-
 public class User  {
 	
 	@io.realm.base.Ignore private boolean state;
@@ -23,11 +22,5 @@ public class User  {
 	{
 	}
 	 
-	public int calculate()
-	{
-		int x = 8;
-		return x+2;
-	}
-
 }
 

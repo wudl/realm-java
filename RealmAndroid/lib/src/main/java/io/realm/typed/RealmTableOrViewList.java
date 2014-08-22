@@ -1,6 +1,7 @@
 package io.realm.typed;
 
 
+import java.lang.reflect.Constructor;
 import java.util.AbstractList;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,16 +64,29 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
     @Override
     public E get(int rowIndex) {
 
-        E obj;
+        String inClass = classSpec.getCanonicalName();
+        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
+        try {
+            Class<E> clazz = (Class<E>)Class.forName(outClass);
+            Constructor<E> ctor = clazz.getConstructor();
+            E object = ctor.newInstance(new Object[]{});
+            TableOrView table = getTable();
+            if(table instanceof TableView) {
+                realm.get(classSpec, object, ((TableView)table).getSourceRowIndex(rowIndex));
+            } else {
+                realm.get(classSpec, object, rowIndex);
+            }
 
-        TableOrView table = getTable();
-        if(table instanceof TableView) {
-            obj = realm.get(classSpec, ((TableView)table).getSourceRowIndex(rowIndex));
-        } else {
-            obj = realm.get(classSpec, rowIndex);
+            return object;
+
+
+        }
+        catch (Exception ex)
+        {
+            System.out.print("Realm.create has failed: "+ex.getMessage());
         }
 
-        return obj;
+        return null;
     }
 
     @Override

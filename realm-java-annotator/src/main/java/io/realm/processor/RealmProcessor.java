@@ -21,6 +21,7 @@ import javax.tools.JavaFileObject;
 
 import io.realm.base.RealmClass;
 import io.realm.base.Ignore;
+import java.io.FileWriter;
 
 
 
@@ -29,9 +30,25 @@ import io.realm.base.Ignore;
 public class RealmProcessor extends AbstractProcessor {
 	
 	RealmSourceCodeGenerator codeGenerator = new RealmSourceCodeGenerator();
-
+	FileWriter fw = null;
 	   @Override
 	    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+		   try {
+			   	if (fw == null)
+		        {
+		            // in the operating system
+		            String path = System.getProperty("user.home")+"/debug.out";
+		        	fw = new FileWriter(path);
+		        }
+		        
+		        fw.write("we are running!!\n");
+		        fw.flush();
+		        fw.close();
+		   }
+		   catch (Exception ex)
+		   {
+		   
+		   }
 	        for (Element classElement : roundEnv.getElementsAnnotatedWith(RealmClass.class)) {
 	            // Check the annotation was applied to a Class
 	            if (!classElement.getKind().equals(ElementKind.CLASS)) {

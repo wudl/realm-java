@@ -5,7 +5,6 @@ import android.test.AndroidTestCase;
 import java.util.Date;
 
 import io.realm.tests.typed.entities.AllColumns;
-import io.realm.tests.typed.entities.User;
 import io.realm.typed.Realm;
 import io.realm.typed.RealmList;
 import io.realm.typed.RealmTableOrViewList;
@@ -38,14 +37,14 @@ public class RealmListTest extends AndroidTestCase {
             allColumns.setColumnDate(new Date());
             allColumns.setColumnBinary(new byte[20]);
 
-            User user = new User();
-            user.setId(i);
-            user.setName("Test User");
-            user.setEmail("user@test.com");
+            //User user = new User();
+            //user.setId(i);
+            //user.setName("Test User");
+            //user.setEmail("user@test.com");
 
-            allColumns.setColumnRealmObject(user);
+           // allColumns.setColumnRealmObject(user);
 
-            realm.add(allColumns);
+            //realm.add(allColumns);
         }
 
         realm.commit();

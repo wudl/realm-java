@@ -1,5 +1,6 @@
 package io.realm.typed;
 
+import java.lang.reflect.Constructor;
 import java.util.AbstractList;
 
 import io.realm.LinkView;
@@ -34,7 +35,7 @@ public class RealmLinkList<E extends RealmObject> extends AbstractList<E> implem
         if(object.realmGetRow() == null) {
             realm.add(object);
             view.set(location, object.realmAddedAtRowIndex);
-            return realm.get((Class<E>)object.getClass(), object.realmAddedAtRowIndex);
+            return realm.get((Class<E>)object.getClass(), object, object.realmAddedAtRowIndex);
         } else {
             view.set(location, object.realmGetRow().getIndex());
             return object;
@@ -59,7 +60,30 @@ public class RealmLinkList<E extends RealmObject> extends AbstractList<E> implem
 
     @Override
     public E get(int i) {
-        return realm.get(clazz, view.getTargetRowIndex(i));
+//        String inClass = classSpec.getCanonicalName();
+//        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
+        String outClass = this.clazz.getCanonicalName();
+
+        try {
+            Class<E> clazz = (Class<E>)Class.forName(outClass);
+            Constructor<E> ctor = clazz.getConstructor();
+            E object = ctor.newInstance(new Object[]{});
+//            TableOrView table = getTable();
+//            if(table instanceof TableView) {
+//                realm.get(classSpec, object, ((TableView)table).getSourceRowIndex(rowIndex));
+//            } else {
+//                realm.get(classSpec, object, rowIndex);
+//            }
+//
+            return object;
+
+
+        }
+        catch (Exception ex)
+        {
+            System.out.print("Realm.create has failed: "+ex.getMessage());
+        }
+        return null;
     }
 
     @Override
