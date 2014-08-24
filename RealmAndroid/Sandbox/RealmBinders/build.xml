@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="RealmBinders">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+    <path id="RealmBinders.classpath">
+        <pathelement location="binders"/>
+        <pathelement location="../RealmProcessor.jar"/>
+        <pathelement location="../realm-android-0.10.0.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="binders"/>
+    </target>
+    <target name="clean">
+        <delete dir="binders"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="binders" includeantruntime="false" source="${source}" target="${target}">
+            <src path="generated"/>
+            <classpath path="../realm-android-0.10.0.jar"/>
+        </javac>
+	 <jar destfile="RealmGenerated.jar">
+    	     <fileset dir="binders">
+             	<exclude name="io/realm/typed/*.*"/>
+   	     </fileset>
+ 	</jar>
+
+    </target>
+</project>

@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.List;
 import io.realm.example.entities.User;
 import io.realm.testApp.R;
 import io.realm.typed.Realm;
-import io.realm.typed.RealmChangeListener;
 
 public class MainActivity extends Activity {
 
@@ -50,15 +48,15 @@ public class MainActivity extends Activity {
         this.adapter = new ArrayAdapter<User>(this, R.layout.list_item, this.users);
         listView.setAdapter(this.adapter);
 
-        realm.addChangeListener(new RealmChangeListener() {
-            @Override
-            public void onChange() {
-                realm.refresh();
-                users = realm.where(User.class).findAll();
-                adapter.notifyDataSetChanged();
-                System.out.println("Updated list");
-            }
-        });
+//        realm.addChangeListener(new RealmChangeListener() {
+//            @Override
+//            public void onChange() {
+//                realm.refresh();
+//                users = realm.where(io.realm.tests.typed.entities.autogen.User.class).findAll();
+//                adapter.notifyDataSetChanged();
+//                System.out.println("Updated list");
+//            }
+//        });
 
 
     }
@@ -75,11 +73,11 @@ public class MainActivity extends Activity {
 
         User user = new User();
 
-        user.setId(0);
-        user.setName("Username " + this.users.size());
-        user.setEmail("");
+//        user.setId(0);
+//        user.setName("Username " + this.users.size());
+//        user.setEmail("");
 
-        wrRealm.add(user);
+//        wrRealm.add(user);
         wrRealm.commit();
 
 

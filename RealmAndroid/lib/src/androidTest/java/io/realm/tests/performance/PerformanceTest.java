@@ -24,10 +24,6 @@ import io.realm.typed.RealmList;
 public class PerformanceTest extends AndroidTestCase {
 
     public void testPerformance() {
-
-
-        System.out.println("START START START START START START START START START START START START START START START START START");
-
         final int listSize = 10000;
         long timer;
         Map<String, Long> timings = new HashMap<String, Long>();
@@ -50,7 +46,7 @@ public class PerformanceTest extends AndroidTestCase {
         try {
             realm.beginWrite();
             for(int i = 0; i < listSize; i++) {
-                io.realm.tests.typed.entities.autogen.User user = realm.create(User.class);
+                io.realm.tests.typed.entities.autogen.User user = realm.create(new io.realm.tests.typed.entities.autogen.User());
                 user.setid(i);
                 user.setname("John Doe");
                 user.setemail("john@doe.com");
@@ -63,7 +59,7 @@ public class PerformanceTest extends AndroidTestCase {
             fail();
         }
 
-        //timings.put("RealmList_Add", (System.currentTimeMillis() - timer));
+        System.out.println("RealmList_Add: "+((System.currentTimeMillis() - timer)));
 
 //        timer = System.currentTimeMillis();
 //        RealmList<User> realmList = realm.where(User.class).findAll();

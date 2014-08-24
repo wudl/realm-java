@@ -32,11 +32,14 @@ public class RealmQuery<E extends RealmObject> {
         }
     }
 
-    public RealmQuery(RealmTableOrViewList realmList, Class<E> clazz) {
+    String tableName;
+
+    public RealmQuery(RealmTableOrViewList realmList, String tableName) {
         this.realmList = realmList;
 
         this.realm = realmList.getRealm();
-        this.clazz = clazz;
+        //this.clazz = clazz;
+        this.tableName = tableName;
 
         TableOrView dataStore = getTable();
         this.query = dataStore.where();
@@ -50,7 +53,7 @@ public class RealmQuery<E extends RealmObject> {
         if(realmList != null) {
             return realmList.getTable();
         } else {
-            return realm.getTable(clazz);
+            return realm.getTable(tableName);
         }
     }
 

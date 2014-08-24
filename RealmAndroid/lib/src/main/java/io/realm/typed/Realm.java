@@ -82,65 +82,41 @@ public class Realm {
         defaultDurability = durability;
     }
 
-    public Table getTable(Class<?> classSpec) {
-        return transaction.getTable(classSpec.getSimpleName());
+    public Table getTable(String name) {
+        return transaction.getTable(name);
     }
 
-
-    private void initTable(Class classSpec) {
+    ColumnType columnTypeFromInt(int value)
+    {
+        switch (value)
+        {
+            case 1: return ColumnType.BOOLEAN;
+            case 0: return ColumnType.INTEGER;
+            case 9: return ColumnType.FLOAT;
+            case 10: return ColumnType.DOUBLE;
+            case 2: return ColumnType.STRING;
+            case 4: return ColumnType.BINARY;
+            case 7: return ColumnType.DATE;
+            case 8: return ColumnType.TABLE;
+            case 6: return ColumnType.MIXED;
+            case 12: return ColumnType.LINK;
+            case 13: return ColumnType.LINK_LIST;
+            default: return ColumnType.INTEGER;
+        }
+    }
+    private <E extends RealmObject> void initTable(E object) {
 
         // Check for table existence
-        if(!transaction.hasTable(classSpec.getSimpleName())) {
+        if(!transaction.hasTable(object.getTableName())) {
             // Create the table
-            Table table = transaction.getTable(classSpec.getSimpleName());
+            Table table = transaction.getTable(object.getTableName());
 
-            System.out.println(classSpec.getSimpleName());
+            String[] tableNames = object.getTableNames();
 
-            Field[] fields = classSpec.getDeclaredFields();
+            int[] tableTypes = object.getTableTypes();
 
-            for (int i = 0; i < fields.length; i++) {
-
-                Field f = fields[i];
-
-                Class<?> fieldType = f.getType();
-
-                System.out.println(f.getName() + " - " + fieldType.getName());
-
-
-                if (fieldType.equals(String.class)) {
-                    table.addColumn(ColumnType.STRING, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(int.class) || fieldType.equals(long.class) || fieldType.equals(Integer.class) || fieldType.equals(Long.class)) {
-                    table.addColumn(ColumnType.INTEGER, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(double.class) || fieldType.equals(Double.class)) {
-                    table.addColumn(ColumnType.DOUBLE, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(float.class) || fieldType.equals(Float.class)) {
-                    table.addColumn(ColumnType.FLOAT, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(boolean.class) || fieldType.equals(Boolean.class)) {
-                    table.addColumn(ColumnType.BOOLEAN, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(Date.class)) {
-                    table.addColumn(ColumnType.DATE, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (fieldType.equals(byte[].class)) {
-                    table.addColumn(ColumnType.BINARY, f.getName().toLowerCase(Locale.getDefault()));
-                } else if (RealmObject.class.equals(fieldType.getSuperclass())) {
-                    // Link
-                    initTable(fieldType);
-                    table.addColumnLink(ColumnType.LINK, f.getName().toLowerCase(Locale.getDefault()), getTable(fieldType));
-                } else if (RealmList.class.isAssignableFrom(fieldType)) {
-                    // Link List
-                    Type genericType = f.getGenericType();
-                    if (genericType instanceof ParameterizedType) {
-                        ParameterizedType pType = (ParameterizedType) genericType;
-                        Class<?> actual = (Class<?>) pType.getActualTypeArguments()[0];
-                        if(RealmObject.class.equals(actual.getSuperclass())) {
-                            initTable(actual);
-                            table.addColumnLink(ColumnType.LINK_LIST, f.getName().toLowerCase(Locale.getDefault()), getTable(actual));
-                        }
-                    }
-                } else {
-                    System.err.println("Type not supported: " + fieldType.getName());
-                }
-
-
+            for (int i = 0; i < tableNames.length; i++) {
+                table.addColumn(columnTypeFromInt(tableTypes[i]), tableNames[i].toLowerCase(Locale.getDefault()));
             }
 
         }
@@ -154,23 +130,40 @@ public class Realm {
      * @return              The new object
      * @param <E>
      */
-    public <E extends RealmObject> E create(Class classSpec) {
-
-        //io.realm.tests.typed.entities.User
-        String inClass = classSpec.getCanonicalName();
-        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
+//    public <E extends RealmObject> E create(Class classSpec) {
+//
+//        //io.realm.tests.typed.entities.User
+//        String inClass = classSpec.getCanonicalName();
+//        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
+//
+//        try {
+//            Class<E> clazz = (Class<E>)Class.forName(outClass);
+//            Constructor<E> ctor = clazz.getConstructor();
+//            E object = ctor.newInstance(new Object[]{});
+//            initTable(classSpec);
+//
+//            Table table = getTable(clazz);
+//
+//            long rowIndex = table.addEmptyRow();
+//
+//            return get(clazz, object, rowIndex);
+//        }
+//        catch (Exception ex)
+//        {
+//            System.out.print("Realm.create has failed: "+ex.getMessage());
+//        }
+//        return null;
+//    }
+    public <E extends RealmObject> E create(E object) {
 
         try {
-            Class<E> clazz = (Class<E>)Class.forName(outClass);
-            Constructor<E> ctor = clazz.getConstructor();
-            E object = ctor.newInstance(new Object[]{});
-            initTable(classSpec);
+            initTable(object);
 
-            Table table = getTable(clazz);
+            Table table = getTable(object.getTableName());
 
             long rowIndex = table.addEmptyRow();
 
-            return get(clazz, object, rowIndex);
+            return get(object.getTableName(), object, rowIndex);
         }
         catch (Exception ex)
         {
@@ -179,9 +172,8 @@ public class Realm {
         return null;
     }
 
-
     public <E> void remove(Class<E> clazz, long objectIndex) {
-        getTable(clazz).moveLastOver(objectIndex);
+        getTable(clazz.getSimpleName()).moveLastOver(objectIndex);
     }
 
     private Map<String, List<Field>> cache = new HashMap<String, List<Field>>();
@@ -195,9 +187,7 @@ public class Realm {
      */
     public <E extends RealmObject> void add(E element) {
 
-        System.out.println("Adding " + element.getClass().getName());
-
-        initTable(element.getClass());
+        initTable(element);
 
         String className = element.getClass().getSimpleName();
 
@@ -244,7 +234,7 @@ public class Realm {
 
         }
 
-        Table table = getTable(element.getClass());
+        Table table = getTable(element.getTableName());
         long rowIndex = table.addEmptyRow();
         long columnIndex = 0;
 
@@ -323,10 +313,10 @@ public class Realm {
 
     }
 
-    <E extends RealmObject> E get(Class<E> clazz, E obj , long rowIndex) {
+    <E extends RealmObject> E get(String simpleName, E obj , long rowIndex) {
 
  //       try {
-            Row row = transaction.getTable(clazz.getSimpleName()).getRow(rowIndex);
+            Row row = transaction.getTable(simpleName).getRow(rowIndex);
             obj.realmSetRow(row);
  //       } catch (IOException e) {
  //           e.printStackTrace();
@@ -426,8 +416,8 @@ public class Realm {
 
     }
 
-    public void clear(Class<?> classSpec) {
-        getTable(classSpec).clear();
+    public void clear(String name) {
+        getTable(name).clear();
     }
 
     public void clear() {

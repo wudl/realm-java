@@ -1,6 +1,7 @@
 package io.realm.processor;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.lang.Override;
 import java.util.Iterator;
 import java.util.Set;
@@ -21,35 +22,17 @@ import javax.tools.JavaFileObject;
 
 import io.realm.base.RealmClass;
 import io.realm.base.Ignore;
-import java.io.FileWriter;
 
 
 
 @SupportedAnnotationTypes({"io.realm.base.RealmClass", "io.realm.base.Ignore"})
 @SupportedSourceVersion(javax.lang.model.SourceVersion.RELEASE_6)
 public class RealmProcessor extends AbstractProcessor {
-	
 	RealmSourceCodeGenerator codeGenerator = new RealmSourceCodeGenerator();
-	FileWriter fw = null;
 	   @Override
 	    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-		   try {
-			   	if (fw == null)
-		        {
-		            // in the operating system
-		            String path = System.getProperty("user.home")+"/debug.out";
-		        	fw = new FileWriter(path);
-		        }
-		        
-		        fw.write("we are running!!\n");
-		        fw.flush();
-		        fw.close();
-		   }
-		   catch (Exception ex)
-		   {
-		   
-		   }
-	        for (Element classElement : roundEnv.getElementsAnnotatedWith(RealmClass.class)) {
+
+		   for (Element classElement : roundEnv.getElementsAnnotatedWith(RealmClass.class)) {
 	            // Check the annotation was applied to a Class
 	            if (!classElement.getKind().equals(ElementKind.CLASS)) {
 	                error("The RealmClass annotation can only be applied to classes");
@@ -75,6 +58,7 @@ public class RealmProcessor extends AbstractProcessor {
 	            		qualifiedClassName = qualifiedClassName.replace(".", "/");
 	            		
 	            		codeGenerator.set_packageName(qName);
+	            		//codeGenerator.set_implements(packageElement.getQualifiedName().toString()+"."+classElement.getSimpleName().toString());
 	            		codeGenerator.set_className(classElement.getSimpleName().toString());
 	            		
 	            		JavaFileObject jfo = processingEnv.getFiler().createSourceFile(qualifiedClassName /*classElement.getSimpleName()qualifiedClassName*/);

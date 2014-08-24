@@ -12,6 +12,6 @@ public class AllColumns  {
     private boolean columnBoolean;
     private Date columnDate;
     //private byte columnBinary;
-    private User columnRealmObject;
+    //private User columnRealmObject;
 
 }

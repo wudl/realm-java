@@ -8,6 +8,11 @@
     </path>
     <target name="init">
         <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir=".">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
     </target>
     <target name="clean">
         <delete dir="bin"/>
@@ -21,13 +26,5 @@
             <src path="."/>
             <classpath path="./io/realm/base;./io/realm/processor"/>
         </javac>
-        <copy includeemptydirs="false" todir="bin">
-            <fileset dir="../Assets">
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
- 	<jar destfile="AnnotationProcessor.jar">
-    	     <fileset dir="bin"/>
-	</jar>
     </target>
 </project>
