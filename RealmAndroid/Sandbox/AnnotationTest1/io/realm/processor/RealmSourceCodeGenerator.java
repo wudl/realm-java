@@ -15,7 +15,7 @@ public class RealmSourceCodeGenerator {
 	private BufferedWriter _bw;
 	private HashMap<String, String> _values = new HashMap<String, String>();
 	private HashMap<String, Element> _methods = new HashMap<String, Element>();
-
+	
 	private final String _codeHeader =   "package <+package>;\n"+
 								         "\n"+
 								         "import io.realm.typed.RealmObject;\n"+		
@@ -51,7 +51,13 @@ public class RealmSourceCodeGenerator {
                                          "        realmGetRow().set<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"), value);\n"+
 								         "    }\n"+
 								         "\n";
-	
+	private final String _XLATER_START = "    public Object[] getValues()\n"+
+                             	         "    {\n"+
+		                                 "        Object[] o = new Object[<+GetterCount>];\n";
+	private final String _XLATER_LINE  = "        o[<+Index>]      =   get<+field>();\n";
+	private final String _XLATER_END   = "    return o;\n"+
+	                                     "    }\n";
+
 	private final String _codeFooter =   	
 								        "}\n"+
 									    "\n";
@@ -153,6 +159,10 @@ public class RealmSourceCodeGenerator {
 		Iterator<String> it = keys.iterator();
 		String _fieldTable = "";
 		String _typeTable = "";
+		String XLATsection = "";
+		
+		int idx = 0;
+		
 		while (it.hasNext())
 		{
 			String k = it.next();
@@ -163,6 +173,7 @@ public class RealmSourceCodeGenerator {
 			Element e = _methods.get(k);
 			if (_fieldTable.length() > 0) _fieldTable += " ,";
 			_fieldTable += "\""+k+"\"";
+			
 			if (_typeTable.length() > 0) _typeTable += " ,";
 			
 			if (e.asType().toString().compareTo("java.lang.String") == 0)
@@ -198,6 +209,10 @@ public class RealmSourceCodeGenerator {
 			{
 				_typeTable += e.asType().toString()+" - "+String.class.toString();				
 			}
+			String XLATline = _XLATER_LINE.replace("<+Index>", new Integer(idx++).toString());
+			XLATline = XLATline.replace("<+field>", k);
+			
+			XLATsection += XLATline;
 		}
 		
 		_bw.append(_fieldTableHeader);

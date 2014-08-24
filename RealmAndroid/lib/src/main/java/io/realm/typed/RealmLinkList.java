@@ -35,7 +35,7 @@ public class RealmLinkList<E extends RealmObject> extends AbstractList<E> implem
         if(object.realmGetRow() == null) {
             realm.add(object);
             view.set(location, object.realmAddedAtRowIndex);
-            return realm.get((Class<E>)object.getClass(), object, object.realmAddedAtRowIndex);
+            return realm.get(object.getTableName(), object, object.realmAddedAtRowIndex);
         } else {
             view.set(location, object.realmGetRow().getIndex());
             return object;

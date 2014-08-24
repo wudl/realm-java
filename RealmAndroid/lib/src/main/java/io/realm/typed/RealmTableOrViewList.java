@@ -15,17 +15,18 @@ import io.realm.TableView;
  */
 public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E> implements RealmList<E> {
 
-    private Class<E> classSpec;
+    //private Class<E> classSpec;
+    private String className;
     private Realm realm;
     private TableOrView table = null;
 
-    RealmTableOrViewList(Realm realm, Class<E> classSpec) {
+    RealmTableOrViewList(Realm realm, String className) {
         this.realm = realm;
-        this.classSpec = classSpec;
+        this.className = className;
     }
 
-    RealmTableOrViewList(Realm realm, TableOrView table, Class<E> classSpec) {
-        this(realm, classSpec);
+    RealmTableOrViewList(Realm realm, TableOrView table, String className) {
+        this(realm, className);
         this.table = table;
     }
 
@@ -36,7 +37,7 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
     TableOrView getTable() {
 
         if(table == null) {
-            return realm.getTable(classSpec);
+            return realm.getTable(className);
         } else {
             return table;
         }
@@ -57,24 +58,33 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
 
     @Override
     public RealmQuery<E> where() {
-        return new RealmQuery<E>(this, classSpec);
+        return new RealmQuery<E>(this, className);
     }
 
+
+    private E createObject(String className)
+    {
+        if (className.compareTo("io.realm.tests.typed.entities.autogen.User") == 0)
+        {
+            return (E)new io.realm.tests.typed.entities.autogen.User();
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     @Override
     public E get(int rowIndex) {
 
-        String inClass = classSpec.getCanonicalName();
-        String outClass = inClass.substring(0,inClass.lastIndexOf("."))+".autogen"+inClass.substring(inClass.lastIndexOf("."));
+        String outClass = className.substring(0,className.lastIndexOf("."))+".autogen"+className.substring(className.lastIndexOf("."));
         try {
-            Class<E> clazz = (Class<E>)Class.forName(outClass);
-            Constructor<E> ctor = clazz.getConstructor();
-            E object = ctor.newInstance(new Object[]{});
+            E object = createObject(outClass);
             TableOrView table = getTable();
             if(table instanceof TableView) {
-                realm.get(classSpec, object, ((TableView)table).getSourceRowIndex(rowIndex));
+                realm.get(className, object, ((TableView)table).getSourceRowIndex(rowIndex));
             } else {
-                realm.get(classSpec, object, rowIndex);
+                realm.get(className, object, rowIndex);
             }
 
             return object;

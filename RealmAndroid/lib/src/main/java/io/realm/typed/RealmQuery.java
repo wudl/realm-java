@@ -18,11 +18,12 @@ public class RealmQuery<E extends RealmObject> {
     private Realm realm;
     private TableQuery query;
     private Map<String, Integer> columns = new HashMap<String, Integer>();
-    private Class<E> clazz;
+    //private Class<E> clazz;
+    private String clazzName;
 
-    public RealmQuery(Realm realm, Class<E> clazz) {
+    public RealmQuery(Realm realm, String className) {
         this.realm = realm;
-        this.clazz = clazz;
+        this.clazzName = className;
 
         TableOrView dataStore = getTable();
         this.query = dataStore.where();
@@ -38,7 +39,6 @@ public class RealmQuery<E extends RealmObject> {
         this.realmList = realmList;
 
         this.realm = realmList.getRealm();
-        //this.clazz = clazz;
         this.tableName = tableName;
 
         TableOrView dataStore = getTable();
@@ -442,7 +442,7 @@ public class RealmQuery<E extends RealmObject> {
     // Execute
 
     public RealmTableOrViewList<E> findAll() {
-        return new RealmTableOrViewList<E>(realm, query.findAll(), clazz);
+        return new RealmTableOrViewList<E>(realm, query.findAll(), clazzName);
     }
 
     public E findFirst() {
