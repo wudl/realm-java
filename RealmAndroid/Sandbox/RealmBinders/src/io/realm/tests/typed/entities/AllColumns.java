@@ -3,7 +3,7 @@ package io.realm.tests.typed.entities;
 import java.util.Date;
 
 @io.realm.base.RealmClass
-public class AllColumns  {
+public class AllColumns extends io.realm.typed.RealmObject {
 
     private String columnString;
     private long columnLong;

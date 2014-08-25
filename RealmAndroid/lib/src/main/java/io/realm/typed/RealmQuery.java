@@ -18,12 +18,24 @@ public class RealmQuery<E extends RealmObject> {
     private Realm realm;
     private TableQuery query;
     private Map<String, Integer> columns = new HashMap<String, Integer>();
-    //private Class<E> clazz;
-    private String clazzName;
+    private Class<E> clazz;
+    //private String clazzName;
 
-    public RealmQuery(Realm realm, String className) {
+//    public RealmQuery(Realm realm, String className) {
+//        this.realm = realm;
+//        this.clazzName = className;
+//
+//        TableOrView dataStore = getTable();
+//        this.query = dataStore.where();
+//
+//        for(int i = 0; i < dataStore.getColumnCount(); i++) {
+//            this.columns.put(dataStore.getColumnName(i), i);
+//        }
+//    }
+
+    public RealmQuery(Realm realm, Class<E> clazz) {
         this.realm = realm;
-        this.clazzName = className;
+        this.clazz = clazz;
 
         TableOrView dataStore = getTable();
         this.query = dataStore.where();
@@ -33,29 +45,56 @@ public class RealmQuery<E extends RealmObject> {
         }
     }
 
-    String tableName;
 
-    public RealmQuery(RealmTableOrViewList realmList, String tableName) {
+    //String tableName;
+
+//    public RealmQuery(RealmTableOrViewList realmList, String tableName) {
+//        this.realmList = realmList;
+//
+//        this.realm = realmList.getRealm();
+//        this.tableName = tableName;
+//
+//        TableOrView dataStore = getTable();
+//        this.query = dataStore.where();
+//
+//        for(int i = 0; i < dataStore.getColumnCount(); i++) {
+//            this.columns.put(dataStore.getColumnName(i), i);
+//        }
+//    }
+
+    public RealmQuery(RealmTableOrViewList realmList,Class<E> clazz)
+    {
         this.realmList = realmList;
 
         this.realm = realmList.getRealm();
-        this.tableName = tableName;
+        this.clazz = clazz;
 
         TableOrView dataStore = getTable();
         this.query = dataStore.where();
 
         for(int i = 0; i < dataStore.getColumnCount(); i++) {
             this.columns.put(dataStore.getColumnName(i), i);
-        }
     }
+}
 
+
+
+//    TableOrView getTable() {
+//        if(realmList != null) {
+//            return realmList.getTable();
+//        } else {
+//            return realm.getTable(tableName);
+//        }
+//    }
     TableOrView getTable() {
         if(realmList != null) {
             return realmList.getTable();
         } else {
-            return realm.getTable(tableName);
+            return realm.getTable(clazz);
         }
     }
+
+
 
     // Equal
 
@@ -441,8 +480,12 @@ public class RealmQuery<E extends RealmObject> {
 
     // Execute
 
-    public RealmTableOrViewList<E> findAll() {
-        return new RealmTableOrViewList<E>(realm, query.findAll(), clazzName);
+//    public RealmTableOrViewList<E> findAll() {
+//        return new RealmTableOrViewList<E>(realm, query.findAll(), clazzName);
+//    }
+    public RealmTableOrViewList<E> findAll()
+    {
+        return new RealmTableOrViewList<E>(realm, query.findAll(), clazz);
     }
 
     public E findFirst() {

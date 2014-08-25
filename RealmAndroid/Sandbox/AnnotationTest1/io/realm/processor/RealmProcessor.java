@@ -50,15 +50,14 @@ public class RealmProcessor extends AbstractProcessor {
 	            try 
 	            {
 	            	PackageElement packageElement = (PackageElement) enclosingElement;
-	            	String qName = packageElement.getQualifiedName().toString()+".autogen";
+	            	String qName = packageElement.getQualifiedName().toString();
 	            	
 	            	if (qName != null)
 	            	{
-	            		String qualifiedClassName = qName + "."+classElement.getSimpleName();
+	            		String qualifiedClassName = qName + "."+classElement.getSimpleName()+"_PROXY";
 	            		qualifiedClassName = qualifiedClassName.replace(".", "/");
 	            		
 	            		codeGenerator.set_packageName(qName);
-	            		//codeGenerator.set_implements(packageElement.getQualifiedName().toString()+"."+classElement.getSimpleName().toString());
 	            		codeGenerator.set_className(classElement.getSimpleName().toString());
 	            		
 	            		JavaFileObject jfo = processingEnv.getFiler().createSourceFile(qualifiedClassName /*classElement.getSimpleName()qualifiedClassName*/);

@@ -18,9 +18,9 @@ public class RealmSourceCodeGenerator {
 	
 	private final String _codeHeader =   "package <+package>;\n"+
 								         "\n"+
-								         "import io.realm.typed.RealmObject;\n"+		
+								         "import io.realm.tests.typed.entities.*;\n"+		
 								         "\n"+
-								         "public class <+class> extends RealmObject \n"+
+								         "public class <+class>_PROXY extends <+class> \n"+
 								         "{\n"+
 								         "    public static final String implName=\"<+class>\";\n";
 
@@ -51,12 +51,6 @@ public class RealmSourceCodeGenerator {
                                          "        realmGetRow().set<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"), value);\n"+
 								         "    }\n"+
 								         "\n";
-	private final String _XLATER_START = "    public Object[] getValues()\n"+
-                             	         "    {\n"+
-		                                 "        Object[] o = new Object[<+GetterCount>];\n";
-	private final String _XLATER_LINE  = "        o[<+Index>]      =   get<+field>();\n";
-	private final String _XLATER_END   = "    return o;\n"+
-	                                     "    }\n";
 
 	private final String _codeFooter =   	
 								        "}\n"+
@@ -209,10 +203,6 @@ public class RealmSourceCodeGenerator {
 			{
 				_typeTable += e.asType().toString()+" - "+String.class.toString();				
 			}
-			String XLATline = _XLATER_LINE.replace("<+Index>", new Integer(idx++).toString());
-			XLATline = XLATline.replace("<+field>", k);
-			
-			XLATsection += XLATline;
 		}
 		
 		_bw.append(_fieldTableHeader);

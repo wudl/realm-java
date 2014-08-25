@@ -1,13 +1,16 @@
 package io.realm.tests.typed.entities;
 
+import io.realm.typed.RealmObject;
+
+
 @io.realm.base.RealmClass
-public class User /*extends RealmObject*/ {
+public class User extends RealmObject {
 
     private int id;
     private String name;
     private String email;
 
-/*
+
     public int getId() {
         return id;
     }
@@ -31,5 +34,5 @@ public class User /*extends RealmObject*/ {
     public void setEmail(String email) {
         this.email = email;
     }
-*/
+
 }

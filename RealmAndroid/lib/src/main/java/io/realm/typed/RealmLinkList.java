@@ -31,16 +31,27 @@ public class RealmLinkList<E extends RealmObject> extends AbstractList<E> implem
     }
 
     @Override
+//    public E set(int location, E object) {
+//        if(object.realmGetRow() == null) {
+//            realm.add(object);
+//            view.set(location, object.realmAddedAtRowIndex);
+//            return realm.get(object.getTableName(), object, object.realmAddedAtRowIndex);
+//        } else {
+//            view.set(location, object.realmGetRow().getIndex());
+//            return object;
+//        }
+//    }
     public E set(int location, E object) {
         if(object.realmGetRow() == null) {
             realm.add(object);
             view.set(location, object.realmAddedAtRowIndex);
-            return realm.get(object.getTableName(), object, object.realmAddedAtRowIndex);
+            return realm.get((Class<E>)object.getClass(), object.realmAddedAtRowIndex);
         } else {
             view.set(location, object.realmGetRow().getIndex());
             return object;
         }
     }
+
 
     @Override
     public void move(int oldPos, int newPos) {

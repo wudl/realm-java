@@ -20,13 +20,9 @@
     <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="binders" includeantruntime="false" source="${source}" target="${target}">
-            <src path="generated"/>
-            <classpath path="../realm-android-0.10.0.jar"/>
-        </javac>
 	 <jar destfile="RealmGenerated.jar">
-    	     <fileset dir="binders">
-             	<exclude name="io/realm/typed/*.*"/>
+    	     <fileset dir="bin">
+             	<include name="io/realm/tests/typed/entities/*_PROXY.class"/>
    	     </fileset>
  	</jar>
 

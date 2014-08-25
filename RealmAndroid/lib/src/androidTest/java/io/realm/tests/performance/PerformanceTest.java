@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Debug;
 import android.test.AndroidTestCase;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ import io.realm.ReadTransaction;
 import io.realm.SharedGroup;
 import io.realm.Table;
 import io.realm.WriteTransaction;
-import io.realm.tests.typed.entities.autogen.User;
+//import io.realm.tests.typed.entities.autogen.User;
+import io.realm.tests.typed.entities.User;
 import io.realm.typed.Realm;
 import io.realm.typed.RealmList;
 
@@ -66,6 +68,8 @@ public class PerformanceTest extends AndroidTestCase {
 
         System.out.println("################################ Testing new interface");
 
+
+
         Realm.setDefaultDurability(SharedGroup.Durability.FULL);
         Realm realm = null;
         try {
@@ -78,13 +82,15 @@ public class PerformanceTest extends AndroidTestCase {
         realm.clear();
 
         timer = System.currentTimeMillis();
+        //Debug.startMethodTracing("write");
         try {
             realm.beginWrite();
             for(int i = 0; i < listSize; i++) {
-                io.realm.tests.typed.entities.autogen.User user = realm.create(new io.realm.tests.typed.entities.autogen.User());
-                user.setid(i);
-                user.setname("John Doe");
-                user.setemail("john@doe.com");
+                //io.realm.tests.typed.entities.autogen.User user = realm.create(new io.realm.tests.typed.entities.autogen.User());
+                io.realm.tests.typed.entities.User user = realm.create(io.realm.tests.typed.entities.User.class);
+                user.setId(i);
+                user.setName("John Doe");
+                user.setEmail("john@doe.com");
                 //realm.add(user);
 
             }
@@ -93,6 +99,8 @@ public class PerformanceTest extends AndroidTestCase {
             t.printStackTrace();
             fail();
         }
+
+        //Debug.stopMethodTracing();
 
         //System.out.println("RealmList_Add: "+((System.currentTimeMillis() - timer)));
         timings.put("RealmList_Add", (System.currentTimeMillis() - timer));
