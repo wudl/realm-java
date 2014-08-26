@@ -159,8 +159,10 @@ public class Realm {
 
     }
 
+
+
     private void initTable(RealmObject object) {
-        String tableName = object.getClass().getSimpleName();
+        String tableName = object.getClass().getSimpleName().replace("_PROXY","");
         // Check for table existence
         if(!transaction.hasTable(tableName)) {
             // Create the table
@@ -193,6 +195,44 @@ public class Realm {
 
         return get(classSpec, rowIndex);
     }
+
+//    public <E extends RealmObject> E create(Class<E> classSpec) {
+//
+//        E obj = null;
+//
+//        String tableName = classSpec.getName();
+//
+//        try {
+//            String className = tableName+"_PROXY";
+//            Class cl = Class.forName(className);
+//            Constructor con = cl.getConstructor();
+//            obj = (E)con.newInstance();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//
+//        initTable(obj);
+//
+//        Table table = getTable(classSpec);
+//
+//        long rowIndex = table.addEmptyRow();
+//
+//        obj.realmAddedAtRowIndex = rowIndex;
+//
+//        try {
+//            Row row = transaction.getTable(tableName).getRow(rowIndex);
+//            obj.realmSetRow(row);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//
+//        return obj;
+//
+//        //return get(classSpec, rowIndex);
+//    }
+
 
     public <E> void remove(Class<E> clazz, long objectIndex) {
         getTable(clazz).moveLastOver(objectIndex);

@@ -86,7 +86,6 @@ public class PerformanceTest extends AndroidTestCase {
         try {
             realm.beginWrite();
             for(int i = 0; i < listSize; i++) {
-                //io.realm.tests.typed.entities.autogen.User user = realm.create(new io.realm.tests.typed.entities.autogen.User());
                 io.realm.tests.typed.entities.User user = realm.create(io.realm.tests.typed.entities.User.class);
                 user.setId(i);
                 user.setName("John Doe");

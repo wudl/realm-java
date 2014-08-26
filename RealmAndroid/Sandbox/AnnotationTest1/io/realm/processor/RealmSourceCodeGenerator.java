@@ -35,12 +35,12 @@ public class RealmSourceCodeGenerator {
 
 	
 	
-	private final String _codeGetter =   "    public <+type> get<+field>()\n"+
+	private final String _codeGetter =   "    public <+type> get<+camelField>()\n"+
 								         "    {\n"+
                                          "        return <+cast>realmGetRow().get<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"));\n"+
 							             "    }\n"+
 								         "\n";
-	private final String _codeSetter =   "    public void set<+field>(<+type> value)\n"+
+	private final String _codeSetter =   "    public void set<+camelField>(<+type> value)\n"+
 								         "    {\n"+
                                          "        realmGetRow().set<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"), value);\n"+
 								         "    }\n"+
@@ -103,8 +103,10 @@ public class RealmSourceCodeGenerator {
 		
 		String camelCase = Character.toUpperCase(name.charAt(0)) + name.substring(1);
 
-		fragment = fragment.replace("<+field>",camelCase);
+		fragment = fragment.replace("<+field>",name);
 		
+		fragment = fragment.replace("<+camelField>",camelCase);
+
 		String fullType = e.asType().toString();
 		fragment = fragment.replace("<+type>",fullType);
 		
