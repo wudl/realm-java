@@ -15,9 +15,9 @@ public abstract class RealmObject {
         this.row = row;
     }
 
-    public  String[] getTableRowNames() {return new String[]{""};}
+    public  String[] getTableRowNames() {return null;}
 
-    public  int[] getTableRowTypes() {return new int[]{0};}
+    public  int[] getTableRowTypes() {return null;}
 
 
 }
