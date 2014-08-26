@@ -25,29 +25,23 @@ public class RealmSourceCodeGenerator {
 								         "    public static final String implName=\"<+class>\";\n";
 
 	private final String _fieldTableHeader =   "    public static String[] fieldNames = {";
-	private final String _fieldTableFooter =   "};\n\n"+
-	                                           "    public String[] getTableRowNames() {return fieldNames;}\n";
+	private final String _fieldTableFooter =   "};\n"+
+	                                           "    public String[] getTableRowNames() {return fieldNames;}\n\n";
 
 	private final String _typeTableHeader =   "    public static int[] fieldTypes = {";
-	private final String _typeTableFooter =   "};\n\n"+
-                                              "    public int[] getTableRowTypes() {return fieldTypes;}\n";
+	private final String _typeTableFooter =   "};\n"+
+                                              "    public int[] getTableRowTypes() {return fieldTypes;}\n\n";
 	private final String _getTableName    =   "    public String getTableName() {return implName;}\n";
 
 	
 	
 	private final String _codeGetter =   "    public <+type> get<+field>()\n"+
 								         "    {\n"+
-//							             "        Class<?> clazz = getClass().getSuperclass();\n"+
-//							             "        final long columnIndex = realmGetRow().getColumnIndex(\"<+field>\");\n"+
-//							             "        return realmGetRow().get<+etter_type>(columnIndex);\n"+
                                          "        return <+cast>realmGetRow().get<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"));\n"+
 							             "    }\n"+
 								         "\n";
 	private final String _codeSetter =   "    public void set<+field>(<+type> value)\n"+
 								         "    {\n"+
-//							             "        Class<?> clazz = getClass().getSuperclass();\n"+
-//							             "        final long columnIndex = realmGetRow().getColumnIndex(\"<+field>\");\n"+
-//							             "        realmGetRow().set<+etter_type>(columnIndex, value);\n"+
                                          "        realmGetRow().set<+etter_type>(realmGetRow().getColumnIndex(\"<+field>\"), value);\n"+
 								         "    }\n"+
 								         "\n";
@@ -106,7 +100,10 @@ public class RealmSourceCodeGenerator {
 	public String generateMethod(String fragment, String name) 
 	{
 		Element e = _methods.get(name);
-		fragment = fragment.replace("<+field>",name);
+		
+		String camelCase = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+
+		fragment = fragment.replace("<+field>",camelCase);
 		
 		String fullType = e.asType().toString();
 		fragment = fragment.replace("<+type>",fullType);
@@ -153,10 +150,7 @@ public class RealmSourceCodeGenerator {
 		Iterator<String> it = keys.iterator();
 		String _fieldTable = "";
 		String _typeTable = "";
-		String XLATsection = "";
-		
-		int idx = 0;
-		
+
 		while (it.hasNext())
 		{
 			String k = it.next();
