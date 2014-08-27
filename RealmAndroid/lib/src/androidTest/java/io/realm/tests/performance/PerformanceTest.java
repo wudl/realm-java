@@ -101,23 +101,25 @@ public class PerformanceTest extends AndroidTestCase {
 
         //Debug.stopMethodTracing();
 
-        //System.out.println("RealmList_Add: "+((System.currentTimeMillis() - timer)));
         timings.put("RealmList_Add", (System.currentTimeMillis() - timer));
 
         timer = System.currentTimeMillis();
 
-        //RealmList<User> realmList = realm.where(io.realm.tests.typed.entities.autogen.User.implName).findAll();
-//        for(int i = 0; i < listSize; i++) {
-            // IUser u = realmList.getTest(i, IUser.class);
-//            User u = realmList.get(i);
-     //       System.out.println(u.getId());
+        RealmList<User> realmList = realm.where(io.realm.tests.typed.entities.User.class).findAll();
+        for(int i = 0; i < listSize; i++) {
+            User u = realmList.get(i);
 
-//            u.getId();
-//            u.getName();
-//            u.getEmail();
+            if (i != u.getId())
+            {
+                System.out.println("FAIL: "+i+" "+u.getId()+" "+u.getName()+" "+u.getEmail());
 
-//       }
-        //timings.put("RealmList_Get", (System.currentTimeMillis() - timer));
+            }
+            u.getId();
+            u.getName();
+            u.getEmail();
+
+       }
+        timings.put("RealmList_Get", (System.currentTimeMillis() - timer));
 
         // SQLite
 
@@ -168,15 +170,15 @@ public class PerformanceTest extends AndroidTestCase {
         // Output results
         System.out.println("New Interface:");
         System.out.println("Add: " + timings.get("RealmList_Add")+" ms");
-//        System.out.println("Get: " + timings.get("RealmList_Get")+" ms");
+        System.out.println("Get: " + timings.get("RealmList_Get")+" ms");
 
         System.out.println("ArrayList Interface:");
         System.out.println("Add: " + timings.get("ArrayList_Add") + " ms\t\t(x" + (timings.get("RealmList_Add").doubleValue() / timings.get("ArrayList_Add").doubleValue()) + ")");
-//        System.out.println("Get: " + timings.get("ArrayList_Get") + " ms\t\t(x" + (timings.get("RealmList_Get").doubleValue() / timings.get("ArrayList_Get").doubleValue()) + ")");
+        System.out.println("Get: " + timings.get("ArrayList_Get") + " ms\t\t(x" + (timings.get("RealmList_Get").doubleValue() / timings.get("ArrayList_Get").doubleValue()) + ")");
 
         System.out.println("SQLite:");
         System.out.println("Add: " + timings.get("SQLite_Add") + " ms\t\t(x" + (timings.get("RealmList_Add").doubleValue() / timings.get("SQLite_Add").doubleValue()) + ")");
-//        System.out.println("Get: " + timings.get("SQLite_Get") + " ms\t\t(x" + (timings.get("RealmList_Get").doubleValue() / timings.get("SQLite_Get").doubleValue()) + ")");
+        System.out.println("Get: " + timings.get("SQLite_Get") + " ms\t\t(x" + (timings.get("RealmList_Get").doubleValue() / timings.get("SQLite_Get").doubleValue()) + ")");
 
     }
 

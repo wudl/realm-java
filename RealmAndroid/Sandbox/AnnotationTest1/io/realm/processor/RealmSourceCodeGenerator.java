@@ -212,6 +212,8 @@ public class RealmSourceCodeGenerator {
 		_bw.append(_getTableName);
 		
 		_bw.append(generateFragment(_codeFooter));
+		
+		_methods.clear();
 
 		return true;
 	}
