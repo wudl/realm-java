@@ -392,6 +392,7 @@ public class Realm {
             return null; // TODO: throw RealmException
         }
         result.realmSetRow(row);
+        result.setTransaction(transaction);
         return result;
     }
 

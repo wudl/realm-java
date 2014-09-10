@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 
 public class RealmSourceCodeGenerator {
 
@@ -129,7 +130,8 @@ public class RealmSourceCodeGenerator {
                 .emitImports(
                         "io.realm.internal.ColumnType",
                         "io.realm.internal.Table",
-                        "io.realm.internal.ImplicitTransaction")
+                        "io.realm.internal.ImplicitTransaction",
+                        "io.realm.internal.Row")
                 .emitEmptyLine();
     }
 
@@ -185,6 +187,30 @@ public class RealmSourceCodeGenerator {
 
             String setterStmt = "row.set" + shortType + "( " + field.fieldId + ", value )";
 
+            if (!field.fieldElement.asType().getKind().isPrimitive())
+            {
+                if (originalType.compareTo("java.lang.String") != 0 &&
+                	originalType.compareTo("java.lang.Long") != 0 &&
+                	originalType.compareTo("java.lang.Integer") != 0 &&
+                	originalType.compareTo("java.lang.Float") != 0 &&
+                	originalType.compareTo("java.lang.Double") != 0 &&
+                	originalType.compareTo("java.lang.Boolean") != 0 &&
+                	originalType.compareTo("java.util.Date") != 0 &&
+                	originalType.compareTo("byte[]") != 0) {
+                	
+                	// We now know this is a type derived from RealmObject - 
+                	// this has already been checked in the RealmProcessor
+                	setterStmt = "if (value != null) {row.setLink("+field.fieldId+", value.realmGetRow().getIndex());}";
+                	getterStmt = "long link = row.getLink("+field.fieldId+");\n"+
+                	"Row newRow = getTransaction().getTable(\""+shortType+"\").getRow(link);"+
+                	"\n"+shortType+"RealmProxy obj = new "+shortType+"RealmProxy();"+
+                	"\nobj.realmSetRow(row);"+
+                	"\nobj.setTransaction(getTransaction());"+
+                	"\nreturn obj";
+                    field.columnType = "ColumnType.LINK";
+                }
+            }
+            
             writer.emitField("int", field.fieldId, EnumSet.of(Modifier.PRIVATE, Modifier.STATIC));
 
             writer.emitAnnotation("Override").beginMethod(originalType, "get" + camelCaseFieldName, EnumSet.of(Modifier.PUBLIC))
