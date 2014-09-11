@@ -50,13 +50,11 @@ public class RealmProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         for (Element classElement : roundEnv.getElementsAnnotatedWith(RealmClass.class)) {
-        	
             // Check the annotation was applied to a Class
             if (!classElement.getKind().equals(ElementKind.CLASS)) {
                 error("The RealmClass annotation can only be applied to classes");
                 return false;
             }
-            
             TypeElement typeElement = (TypeElement) classElement;
 
             // Get the package of the class
@@ -74,13 +72,12 @@ public class RealmProcessor extends AbstractProcessor {
 				error("A RealmClass annotated object must be derived from RealmObject");
 				return false;
 			}
-			
+
             PackageElement packageElement = (PackageElement) enclosingElement;
             String qualifiedPackageName = packageElement.getQualifiedName().toString();
 
             if (qualifiedPackageName != null) {
                 String qualifiedClassName = qualifiedPackageName + "." + classElement.getSimpleName() + "RealmProxy";
-                qualifiedClassName = qualifiedClassName.replace(".", "/");
 
                 JavaFileObject javaFileObject = null;
                 BufferedWriter bufferWriter = null;
@@ -130,8 +127,7 @@ public class RealmProcessor extends AbstractProcessor {
                     			}
                             }
                         }
-                       
- 
+
                         Set<Modifier> modifiers = varElem.getModifiers();
                         for (Modifier modifier : modifiers) {
                             if (modifier == Modifier.PRIVATE) {

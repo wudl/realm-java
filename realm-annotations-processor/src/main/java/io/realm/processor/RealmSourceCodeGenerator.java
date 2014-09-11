@@ -22,23 +22,21 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Locale;
 import java.util.List;
+import java.util.Locale;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+
 
 public class RealmSourceCodeGenerator {
 
     private class FieldInfo {
         public String fieldName;
-        public String fieldId;
         public String columnType;
         public Element fieldElement;
 
-        public FieldInfo(String fieldName, String fieldId, String columnType, Element fieldElement) {
-            this.fieldId = fieldId;
+        public FieldInfo(String fieldName, String columnType, Element fieldElement) {
             this.columnType = columnType;
             this.fieldElement = fieldElement;
             this.fieldName = fieldName;
@@ -111,8 +109,10 @@ public class RealmSourceCodeGenerator {
         return true;
     }
 
-    public void setBufferedWriter(BufferedWriter bw) {
+    public boolean setBufferedWriter(BufferedWriter bw) {
         writer = new JavaWriter(bw);
+
+        return true;
     }
 
     public boolean setPackageName(String packageName) {
@@ -152,17 +152,17 @@ public class RealmSourceCodeGenerator {
     public boolean setField(String fieldName, Element fieldElement) {
         if (!checkState(GeneratorStates.METHODS)) return false;
 
-        String fieldId = "index_" + fieldName;
-
         String shortType = convertSimpleTypesToObject(fieldElement.asType().toString());
         shortType = shortType.substring(shortType.lastIndexOf(".") + 1);
 
-        fields.add(new FieldInfo(fieldName, fieldId, convertTypesToColumnType(shortType), fieldElement));
+        fields.add(new FieldInfo(fieldName, convertTypesToColumnType(shortType), fieldElement));
 
         return true;
     }
 
     public void emitFields() throws IOException {
+
+        int columnIndex = 0;
 
         for (FieldInfo field : fields) {
             String originalType = field.fieldElement.asType().toString();
@@ -173,45 +173,22 @@ public class RealmSourceCodeGenerator {
             String camelCaseFieldName = Character.toUpperCase(field.fieldName.charAt(0)) + field.fieldName.substring(1);
 
             if (originalType.compareTo("int") == 0) {
+                fullType = "long";
                 shortType = "Long";
                 returnCast = "(" + originalType + ")";
-            } else if (shortType.compareTo("Integer") == 0) {
+            }
+
+            if (shortType.compareTo("Integer") == 0) {
+                fullType = "long";
                 shortType = "Long";
                 returnCast = "(int)";
-            } else if (shortType.compareTo("byte[]") == 0) {
-                shortType = "BinaryByteArray";
-                returnCast = "(byte[])";
             }
 
-            String getterStmt = "return " + returnCast + "row.get" + shortType + "( " + field.fieldId + " )";
+            String getterStmt = "return " + returnCast + "row.get" + shortType + "( " + columnIndex + " )";
 
-            String setterStmt = "row.set" + shortType + "( " + field.fieldId + ", value )";
+            String setterStmt = "row.set" + shortType + "( " + columnIndex + ", value )";
 
-            if (!field.fieldElement.asType().getKind().isPrimitive())
-            {
-                if (originalType.compareTo("java.lang.String") != 0 &&
-                	originalType.compareTo("java.lang.Long") != 0 &&
-                	originalType.compareTo("java.lang.Integer") != 0 &&
-                	originalType.compareTo("java.lang.Float") != 0 &&
-                	originalType.compareTo("java.lang.Double") != 0 &&
-                	originalType.compareTo("java.lang.Boolean") != 0 &&
-                	originalType.compareTo("java.util.Date") != 0 &&
-                	originalType.compareTo("byte[]") != 0) {
-                	
-                	// We now know this is a type derived from RealmObject - 
-                	// this has already been checked in the RealmProcessor
-                	setterStmt = "if (value != null) {row.setLink("+field.fieldId+", value.realmGetRow().getIndex());}";
-                	getterStmt = "long link = row.getLink("+field.fieldId+");\n"+
-                	"Row newRow = getTransaction().getTable(\""+shortType+"\").getRow(link);"+
-                	"\n"+shortType+"RealmProxy obj = new "+shortType+"RealmProxy();"+
-                	"\nobj.realmSetRow(row);"+
-                	"\nobj.setTransaction(getTransaction());"+
-                	"\nreturn obj";
-                    field.columnType = "ColumnType.LINK";
-                }
-            }
-            
-            writer.emitField("int", field.fieldId, EnumSet.of(Modifier.PRIVATE, Modifier.STATIC));
+            columnIndex++;
 
             writer.emitAnnotation("Override").beginMethod(originalType, "get" + camelCaseFieldName, EnumSet.of(Modifier.PUBLIC))
                     .emitStatement(getterStmt)
@@ -224,7 +201,14 @@ public class RealmSourceCodeGenerator {
         }
     }
 
+
     public boolean generate() throws IOException {
+
+        writer.setIndent("    ");
+
+        emitPackage();
+        emitClass();
+        emitFields();
 
     	// Set source code indent to 4 spaces
         writer.setIndent("    ");
@@ -249,9 +233,7 @@ public class RealmSourceCodeGenerator {
         // For each field generate corresponding table index constant
         for (int index = 0; index < fields.size(); ++index) {
             FieldInfo field = fields.get(index);
-            String fieldName = field.fieldId.substring("index_".length());
-            writer.emitStatement(field.fieldId + " = " + Integer.toString(index));
-            writer.emitStatement("table.addColumn( %s, \"%s\" )", field.columnType, fieldName.toLowerCase(Locale.getDefault()));
+            writer.emitStatement("table.addColumn( %s, \"%s\" )", field.columnType, field.fieldName.toLowerCase(Locale.getDefault()));
         }
 
         writer.emitStatement("return table");
