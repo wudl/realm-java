@@ -382,8 +382,8 @@ public class Realm {
             e.printStackTrace();
             return null; // TODO: throw RealmException
         }
+        result.realmAddedAtRowIndex = rowIndex;
         result.realmSetRow(row);
-        result.setTransaction(transaction);
         result.setRealm(this);
         return result;
     }

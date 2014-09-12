@@ -16,13 +16,11 @@
 
 package io.realm;
 
-import io.realm.internal.ImplicitTransaction;
 import io.realm.internal.Row;
 
 public abstract class RealmObject {
 
     protected Row row;
-    private ImplicitTransaction transaction;
     long realmAddedAtRowIndex = -1;
     protected Realm realm = null;
 
@@ -32,14 +30,6 @@ public abstract class RealmObject {
 
     protected void setRealm(Realm realm) {
         this.realm = realm;
-    }
-
-    public ImplicitTransaction getTransaction() {
-        return transaction;
-    }
-
-    public void setTransaction(ImplicitTransaction transaction) {
-        this.transaction = transaction;
     }
 
     public Row realmGetRow() {

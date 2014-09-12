@@ -30,9 +30,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -68,7 +65,7 @@ public class RealmProcessor extends AbstractProcessor {
 			TypeElement parentElement = (TypeElement)typeUtils.asElement(typeElement.getSuperclass());
 			
 			
-			if (!parentElement.toString().equals("io.realm.typed.RealmObject")) {
+			if (!parentElement.toString().endsWith(".RealmObject")) {
 				error("A RealmClass annotated object must be derived from RealmObject");
 				return false;
 			}
@@ -121,8 +118,8 @@ public class RealmProcessor extends AbstractProcessor {
                             	fieldTypeName.compareTo("java.util.Date") != 0 &&
                             	fieldTypeName.compareTo("byte[]") != 0) {
                        			TypeElement fieldTypeParentElement = (TypeElement)typeUtils.asElement(fieldTypeElement.getSuperclass());
-                    			if (!fieldTypeParentElement.toString().equals("io.realm.typed.RealmObject")) {
-                    				error("RealmClass fields must be derived from RealmObject "+elementName+" "+fieldTypeElement.toString());
+                    			if (!fieldTypeParentElement.toString().endsWith(".RealmObject")) {
+                    				error("RealmClass fields must be derived from RealmObject: "+elementName+" "+fieldTypeElement.toString());
                     				return false;
                     			}
                             }

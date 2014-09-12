@@ -176,18 +176,38 @@ public class RealmSourceCodeGenerator {
                 fullType = "long";
                 shortType = "Long";
                 returnCast = "(" + originalType + ")";
-            }
-
-            if (shortType.compareTo("Integer") == 0) {
+            } else if (shortType.compareTo("Integer") == 0) {
                 fullType = "long";
                 shortType = "Long";
                 returnCast = "(int)";
+            } else if (shortType.compareTo("byte[]") == 0) {
+                shortType = "BinaryByteArray";
+                returnCast = "(byte[])";
             }
 
             String getterStmt = "return " + returnCast + "row.get" + shortType + "( " + columnIndex + " )";
 
             String setterStmt = "row.set" + shortType + "( " + columnIndex + ", value )";
 
+            if (!field.fieldElement.asType().getKind().isPrimitive())
+            {
+                if (originalType.compareTo("java.lang.String") != 0 &&
+                	originalType.compareTo("java.lang.Long") != 0 &&
+                	originalType.compareTo("java.lang.Integer") != 0 &&
+                	originalType.compareTo("java.lang.Float") != 0 &&
+                	originalType.compareTo("java.lang.Double") != 0 &&
+                	originalType.compareTo("java.lang.Boolean") != 0 &&
+                	originalType.compareTo("java.util.Date") != 0 &&
+                	originalType.compareTo("byte[]") != 0) {
+                	
+                	// We now know this is a type derived from RealmObject - 
+                	// this has already been checked in the RealmProcessor
+                	setterStmt = "if (value != null) {row.setLink( "+columnIndex+", value.realmGetRow().getIndex() );}";
+                	getterStmt = "return realm.get( "+fullType+".class, realmGetRow().getLink( "+ columnIndex +" ) )";
+                    field.columnType = "ColumnType.LINK";
+                }
+            }
+            
             columnIndex++;
 
             writer.emitAnnotation("Override").beginMethod(originalType, "get" + camelCaseFieldName, EnumSet.of(Modifier.PUBLIC))
@@ -203,12 +223,6 @@ public class RealmSourceCodeGenerator {
 
 
     public boolean generate() throws IOException {
-
-        writer.setIndent("    ");
-
-        emitPackage();
-        emitClass();
-        emitFields();
 
     	// Set source code indent to 4 spaces
         writer.setIndent("    ");
