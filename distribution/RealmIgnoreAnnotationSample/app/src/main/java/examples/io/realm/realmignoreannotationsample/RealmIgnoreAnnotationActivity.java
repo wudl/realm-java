@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 Realm Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package examples.io.realm.realmignoreannotationsample;
 
 import android.app.Activity;
@@ -6,11 +22,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import examples.io.realm.realmignoreannotationsample.model.Book;
 import io.realm.Realm;
@@ -25,7 +39,6 @@ public class RealmIgnoreAnnotationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_realm_ignore_annotation);
-
     }
 
     @Override
@@ -50,56 +63,62 @@ public class RealmIgnoreAnnotationActivity extends Activity {
 
     public void runTest(View v)
     {
+        Realm realm = null;
+
+        // Setup the Realm
+
         try {
-            Realm realm = new Realm(getFilesDir());
-
-            realm.clear();
-            realm.beginWrite();
-
-            // Fill books in the library:
-
-            Book book1 = realm.create(Book.class);
-            book1.setAuthor("John Steinbeck");
-            book1.setTitle("Of Mice and Men");
-            book1.setISBN(140177396);
-            book1.setShelfId("Shelf: 110/C");
-
-            Book book2 = realm.create(Book.class);
-            book2.setAuthor("John Steinbeck");
-            book2.setTitle("The Grapes Of Wrath");
-            book2.setISBN(0230031056);
-            book2.setShelfId("Shelf: 110/C");
-
-            Book book3 = realm.create(Book.class);
-            book3.setAuthor("John Steinbeck");
-            book3.setTitle("East of Eden ");
-            book3.setISBN(0142004235);
-            book3.setShelfId("Shelf: 110/C");
-
-            realm.commit();
-
-            RealmList<Book> bookList = realm.where(Book.class).findAll();
-            int sizeBookList = bookList.size();
-            final ListView listview = (ListView) findViewById(R.id.listView);
-            final ArrayList<String> list = new ArrayList<String>();
-
-
-            for (int i = 0; i < sizeBookList; i++) {
-                Book readBook = bookList.get(i);
-                readBook.setShelfId("Undefined");
-                    list.add("Book: " + readBook.getTitle() + " Author " +
-                            readBook.getAuthor()+" Author " + readBook.getISBN().toString() +
-                            " Shelf: " + readBook.getShelfId());
-            }
-
-            final ArrayAdapter<String> adapter = new ArrayAdapter(this,
-                    R.id.listView, list);
-            listview.setAdapter(adapter);
+            realm = new Realm(getFilesDir());
 
         } catch (IOException ioe) {
-            Log.e(TAG, "Realm failed to create and read the book list");
+            Log.e(TAG, "Creation of Realm failed");
         }
+
+        realm.clear();
+        realm.beginWrite();
+
+        // Fill books in the library:
+
+        Book book = realm.create(Book.class);
+        book.setAuthor("John Steinbeck");
+        book.setTitle("Of Mice and Men");
+        book.setISBN(140177396);
+        book.setShelfId("Shelf: 110/C");
+
+        book = realm.create(Book.class);
+        book.setAuthor("John Steinbeck");
+        book.setTitle("The Grapes Of Wrath");
+        book.setISBN(0230031056);
+        book.setShelfId("Shelf: 110/C");
+
+        book = realm.create(Book.class);
+        book.setAuthor("John Steinbeck");
+        book.setTitle("East of Eden ");
+        book.setISBN(0142004235);
+        book.setShelfId("Shelf: 110/C");
+
+        realm.commit();
+
+        // Read the books back from the Realm:
+        RealmList<Book> bookList = realm.where(Book.class).findAll();
+        int sizeBookList = bookList.size();
+
+        String libraryBooks = "";
+
+        for (int i = 0; i < sizeBookList; i++) {
+            Book readBook = null;
+            readBook = bookList.get(i);
+            libraryBooks += "\nBook: " + readBook.getTitle() + " Author: " +
+                    readBook.getAuthor()+" ISBN: " + readBook.getISBN().toString() +
+                    " Shelf: " + readBook.getShelfId();
+        }
+
+        TextView resultView = (TextView)findViewById(R.id.resultView);
+        resultView.setText(libraryBooks);
+
     }
 
-
+    public void exitTest(View v) {
+        this.finish();
+    }
 }
