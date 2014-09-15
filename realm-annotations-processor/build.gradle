@@ -6,13 +6,23 @@ sourceSets {
             srcDirs =  ['src/main/java', "${rootDir}/realm/src/main/java/io/realm/annotations"]
         }
     }
+    test { 
+        java {  
+            srcDir 'test'  
+        }  
+    } 
 }
 
 dependencies {
     compile project(':realm')
     compile group:'com.squareup', name:'javawriter', version:'2.5.0'
+    testCompile 'junit:junit:4.10'
 }
 
 jar {
-    from configurations.compile.findAll {it.name.contains('javawriter')}.collect { zipTree(it) }
+    from configurations.compile.findAll { it.name.contains('javawriter')}.collect { zipTree(it) }
+}
+
+test {
+    systemProperties 'property': 'value'
 }

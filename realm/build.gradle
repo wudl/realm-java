@@ -35,3 +35,28 @@ android.libraryVariants.all { variant ->
 tasks.preBuild {
     dependsOn ':realm-jni:buildAndroidJni'
 }
+
+//NOTE:  If the libraryVariants is no longer required, the java plugin could be used and the
+//built-in test task could be used instead of the more complicated setup below.
+configurations {
+    unitTestCompile.extendsFrom runtime
+    unitTestRuntime.extendsFrom unitTestCompile
+}
+ 
+dependencies {
+    unitTestCompile files("$project.buildDir/classes/release")
+    unitTestCompile 'junit:junit:4.10'
+}
+ 
+sourceSets {
+    unitTest {
+        java.srcDir file('src/test/java')
+        resources.srcDir file('src/test/resources')
+    }
+}
+ 
+task unitTest(type:Test, dependsOn: assemble) {
+    description = "run unit tests"
+    testClassesDir = project.sourceSets.unitTest.output.classesDir
+    classpath = project.sourceSets.unitTest.runtimeClasspath
+}
