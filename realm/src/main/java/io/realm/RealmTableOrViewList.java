@@ -44,11 +44,11 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
         this.table = table;
     }
 
-    Realm getRealm() {
+    public Realm getRealm() {
         return realm;
     }
 
-    TableOrView getTable() {
+    public TableOrView getTable() {
 
         if(table == null) {
             return realm.getTable(classSpec);
@@ -62,14 +62,13 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
         throw new UnsupportedOperationException();
     }
 
-    Map<String, Class<?>> cache = new HashMap<String, Class<?>>();
-
+    public Map<String, Class<?>> cache = new HashMap<String, Class<?>>();
 
     @Override
-    public RealmQuery<E> where() {
-        return new RealmQuery<E>(this, classSpec);
+    public RealmList<E> where() {
+        //TODO:  This will be a call to the where()'s for each individual person
+        return null;
     }
-
 
     @Override
     public E get(int rowIndex) {
@@ -221,6 +220,11 @@ public class RealmTableOrViewList<E extends RealmObject> extends AbstractList<E>
         }
     }
 
+    //TODO:  Implement
+    @Override
+    public RealmList<E> findAll() {
+        return null;
+    }
 
     // Deleting
 

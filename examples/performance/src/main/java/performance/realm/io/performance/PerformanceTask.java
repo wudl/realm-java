@@ -117,21 +117,22 @@ public class PerformanceTask extends AsyncTask<Integer, String, String> {
 
         timings.put("RealmList_Add", (System.currentTimeMillis() - timer));
 
-        timer = System.currentTimeMillis();
-        //Debug.startMethodTracing("reads");
-        RealmList<User> realmList = realm.where(User.class).findAll();
-        for(int i = 0; i < listSize; i++) {
-            // IUser u = realmList.getTest(i, IUser.class);
-            User u = realmList.get(i);
-            //       System.out.println(u.getId());
 
-            u.getId();
-            u.getName();
-            u.getEmail();
-
-        }
-        //Debug.stopMethodTracing();
-        timings.put("RealmList_Get", (System.currentTimeMillis() - timer));
+//        timer = System.currentTimeMillis();
+//        //Debug.startMethodTracing("reads");
+//        RealmList<User> realmList = realm.where(User.class).findAll();
+//        for(int i = 0; i < listSize; i++) {
+//            // IUser u = realmList.getTest(i, IUser.class);
+//            User u = realmList.get(i);
+//            //       System.out.println(u.getId());
+//
+//            u.getId();
+//            u.getName();
+//            u.getEmail();
+//
+//        }
+//        //Debug.stopMethodTracing();
+//        timings.put("RealmList_Get", (System.currentTimeMillis() - timer));
 
 
         // TightDB dyn

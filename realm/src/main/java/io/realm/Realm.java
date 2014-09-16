@@ -408,14 +408,14 @@ public class Realm {
      * @param <E extends RealmObject>
      * @return
      */
-    public <E extends RealmObject> RealmQuery<E> where(Class<E> clazz) {
-        return new RealmQuery<E>(this, clazz);
-    }
+//    public <E extends RealmObject> RealmList<E> where() {
+//        return new RealmArrayList<E>(this);
+//    }
 
 
-    public <E extends RealmObject> RealmTableOrViewList<E> allObjects(Class<E> clazz) {
-        return where(clazz).findAll();
-    }
+//    public <E extends RealmObject> RealmTableOrViewList<E> allObjects(Class<E> clazz) {
+//        return where(clazz).findAll();
+//    }
 
 
     // Migration

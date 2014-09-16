@@ -55,6 +55,9 @@ public interface RealmList<E extends RealmObject> extends List<E> {
      *
      * @return              A RealmQuery to filter the list
      */
-    RealmQuery<E> where();
+    RealmList<E> where();
+
+    //TODO:  Implement
+    RealmList<E> findAll();
 
 }

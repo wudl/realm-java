@@ -17,6 +17,10 @@
 package io.realm;
 
 import io.realm.internal.Row;
+import io.realm.properties.IntProperty;
+import io.realm.properties.RealmProperty;
+
+import android.content.Context;
 
 public abstract class RealmObject {
 
@@ -39,8 +43,20 @@ public abstract class RealmObject {
         this.row = row;
     }
 
-    // Creating objects
+    //TODO:  This could possibly be simplified if the clazz can yield the column name
+    public static IntProperty intProperty(Context context, String columnName) { return new IntProperty(context, columnName); }
 
+    public static RealmList<?> find(RealmProperty property) {
+	return null;
+    }
+
+    public static RealmList<? extends RealmObject> where(RealmProperty property) {
+        Class<?> enclosingClass = new Object().getClass().getEnclosingClass();
+
+    }
+
+//    // Creating objects
+//
 //    /**
 //     * Create a RealmObject in the default Realm with a set of given values.
 //     *

@@ -36,9 +36,15 @@ public class RealmArrayList<E extends RealmObject> extends ArrayList<E> implemen
         return get(size()-1);
     }
 
+    //TODO:  Implement
     @Override
-    public RealmQuery<E> where() {
+    public RealmList<E> where() {
         return null;
     }
 
+    //TODO:  Implement
+    @Override
+    public RealmList<E> findAll() {
+        return null;
+    }
 }
