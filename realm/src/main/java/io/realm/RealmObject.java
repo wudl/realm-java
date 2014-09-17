@@ -46,13 +46,14 @@ public abstract class RealmObject {
     //TODO:  This could possibly be simplified if the clazz can yield the column name
     public static IntProperty intProperty(Context context, String columnName) { return new IntProperty(context, columnName); }
 
-    public static RealmList<?> find(RealmProperty property) {
-	return null;
+    //TODO:  Implement
+    public static RealmList<? extends RealmObject> find(RealmProperty property) {
+        return null;
     }
 
+    //TODO:  Implement
     public static RealmList<? extends RealmObject> where(RealmProperty property) {
-        Class<?> enclosingClass = new Object().getClass().getEnclosingClass();
-
+        return null;
     }
 
 //    // Creating objects

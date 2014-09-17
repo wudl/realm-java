@@ -34,7 +34,7 @@ public class IntProperty implements RealmProperty {
     private Realm realm;
     private TableQuery query;
     private Map<String, Integer> columns = new HashMap<String, Integer>();
-    //private Class clazz;
+    private Class clazz;
 
     int columnIndex = -1;
 
@@ -44,7 +44,7 @@ public class IntProperty implements RealmProperty {
         } catch(IOException e) {
 
         }
-        //this.clazz = clazz;
+        this.clazz = Integer.class;
 
         TableOrView dataStore = getTable();
         this.query = dataStore.where();
@@ -53,24 +53,7 @@ public class IntProperty implements RealmProperty {
             this.columns.put(dataStore.getColumnName(i), i);
         }
 
-        int columnIndex = columns.get(columnName);
-        //TODO:  Throw exception/Error check for proper column name??
-    }
-
-    public IntProperty(RealmTableOrViewList realmList, Class clazz, String columnName) {
-        this.realmList = realmList;
-
-        this.realm = realmList.getRealm();
-        //this.clazz = clazz;
-
-        TableOrView dataStore = getTable();
-        this.query = dataStore.where();
-
-        for(int i = 0; i < dataStore.getColumnCount(); i++) {
-            this.columns.put(dataStore.getColumnName(i), i);
-        }
-
-        int columnIndex = columns.get(columnName);
+        columnIndex = columns.get(columnName);
         //TODO:  Throw exception/Error check for proper column name??
     }
 
@@ -78,9 +61,7 @@ public class IntProperty implements RealmProperty {
         if(realmList != null) {
             return realmList.getTable();
         } else {
-            //TODO: fix...
-            return null;
-            //return realm.getTable(clazz);
+            return realm.getTable(clazz);
         }
     }
 
