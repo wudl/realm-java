@@ -59,7 +59,7 @@ public class RealmTest extends AndroidTestCase {
             // Insert
             for (int i = 0; i < 120; i++) {
 
-                User user = realm.create(User.class);
+                User user = realm.createObject(User.class);
 
                 user.setId(i);
                 user.setName("Rasmus");
@@ -134,7 +134,7 @@ public class RealmTest extends AndroidTestCase {
 
         realm.beginWrite();
 
-        AllColumns obj = realm.create(AllColumns.class);
+        AllColumns obj = realm.createObject(AllColumns.class);
 
         obj.setColumnString("dsfs");
         obj.setColumnLong(1);
@@ -204,7 +204,7 @@ public class RealmTest extends AndroidTestCase {
 
         realm.beginWrite();
 
-        Dog dog = realm.create(Dog.class);
+        Dog dog = realm.createObject(Dog.class);
         dog.setName("Fido");
         dog.setOwners(users);
 

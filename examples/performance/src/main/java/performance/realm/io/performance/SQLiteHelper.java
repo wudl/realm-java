@@ -31,7 +31,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EMAIL = "email";
 
     private static final String DATABASE_CREATE = String.format(
-            "create table %s (%s INTEGER, %s VARCHAR(100), %s VARCHAR(100));",
+            "createObject table %s (%s INTEGER, %s VARCHAR(100), %s VARCHAR(100));",
             TABLE_NAME, COLUMN_INDEX, COLUMN_NAME, COLUMN_EMAIL);
     private static final String DATABASE_DROP = String.format("drop table if exists %s;", TABLE_NAME);
 

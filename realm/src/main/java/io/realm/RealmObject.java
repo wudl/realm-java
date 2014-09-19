@@ -50,7 +50,7 @@ public abstract class RealmObject {
 //     *                     of the arguments must match the order of the fields in the class
 //     *                     declaration.
 //     */
-//    public static void create(Object... arguments) {
+//    public static void createObject(Object... arguments) {
 //        throw new NoSuchMethodError();
 //    }
 //
@@ -63,7 +63,7 @@ public abstract class RealmObject {
 //     *                     of the arguments must match the order of the fields in the class
 //     *                     declaration.
 //     */
-//    public static void create(Realm realm, Object... arguments) {
+//    public static void createObject(Realm realm, Object... arguments) {
 //        throw new NoSuchMethodError();
 //    }
 //

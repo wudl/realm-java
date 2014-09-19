@@ -202,7 +202,7 @@ public class Group implements Closeable {
      *
      * @param name
      *            The name of the table.
-     * @return The table if it exists, otherwise create it.
+     * @return The table if it exists, otherwise createObject it.
      */
     public Table getTable(String name) {
         verifyGroupIsValid();

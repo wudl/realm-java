@@ -16,8 +16,13 @@
 
 package io.realm;
 
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -56,6 +61,41 @@ public class Realm {
 
     private List<RealmChangeListener> changeListeners;
     boolean runEventHandler = false;
+
+    /* This is the cached list of all realm objects */
+//    private static List<WeakReference<Realm>> realmCache
+//            = new ArrayList<WeakReference<Realm>>();
+//
+//    public static Realm create(File writeablePath) throws IOException {
+//        for(WeakReference<Realm> wRealm : realmCache) {
+//            Realm realm = wRealm.get();
+//            if(realm.filePath.equals(writeablePath) && realm != null) {
+//                return realm;
+//            }
+//        }
+//
+//        Realm realm = new Realm(writeablePath);
+//        WeakReference<Realm> wRealm = new WeakReference<Realm>(realm);
+//        realmCache.add(wRealm);
+//        return realm;
+//    }
+
+    //hard refs version
+    private static List<Realm> realmCache
+            = new ArrayList<Realm>();
+
+    public static Realm create(File writeablePath) throws IOException {
+        for(Realm realm : realmCache) {
+            if(realm.filePath.equals(writeablePath.getAbsolutePath())
+                    && realm != null) {
+                return realm;
+            }
+        }
+
+        Realm realm = new Realm(writeablePath);
+        realmCache.add(realm);
+        return realm;
+    }
 
     public Realm(File writeablePath) throws IOException {
         this(writeablePath, "default.realm");
@@ -106,7 +146,7 @@ public class Realm {
      * @return              The new object
      * @param <E>
      */
-    public <E extends RealmObject> E create(Class<E> clazz) {
+    public <E extends RealmObject> E createObject(Class<E> clazz) {
         Table table;
         table = tables.get(clazz);
         if (table == null) {
@@ -424,18 +464,33 @@ public class Realm {
 
     // Notifications
 
+    private static final int REALM_CHANGED_NOTIFICATION = 0x505;
+    private static final String TAG = "Realm";
+
+    Handler notificationHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch(msg.what) {
+                case REALM_CHANGED_NOTIFICATION:
+                    Log.d(TAG, "WHAT's MY THREAD?" +
+                            "Realm.Handler.handleMessage()"
+                            + "," + Thread.currentThread().getName());
+                    for(RealmChangeListener listener : changeListeners) {
+                        listener.onChange();
+                    }
+                    break;
+                default:
+            }
+        }
+    };
+
     public void addChangeListener(RealmChangeListener listener) {
         changeListeners.add(listener);
-        if(!runEventHandler) {
-            startEventHandler();
-        }
     }
 
     public void removeChangeListener(RealmChangeListener listener) {
         changeListeners.remove(listener);
-        if(runEventHandler && changeListeners.isEmpty()) {
-            runEventHandler = false;
-        }
     }
 
     public void removeAllChangeListeners() {
@@ -443,12 +498,7 @@ public class Realm {
     }
 
     void sendNotifications() {
-        for(RealmChangeListener listener : changeListeners) {
-            listener.onChange();
-        }
-        if(runEventHandler && changeListeners.isEmpty()) {
-            runEventHandler = false;
-        }
+        notificationHandler.sendEmptyMessage(REALM_CHANGED_NOTIFICATION);
     }
 
     boolean hasChanged() {

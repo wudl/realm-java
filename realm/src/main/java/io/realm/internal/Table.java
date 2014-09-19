@@ -26,13 +26,13 @@ import java.util.Date;
  * level methods (define/insert/delete/update) a table has. All the native
  * communications to the TightDB C++ library are also handled by this class.
  *
- * A user who wants to create a table of his choice will automatically inherit
+ * A user who wants to createObject a table of his choice will automatically inherit
  * from this class by the realm-class generator.
  *
- * As an example, let's create a table to keep records of an employee in a
+ * As an example, let's createObject a table to keep records of an employee in a
  * company.
  *
- * For this purpose we will create a class named "employee" with an Entity
+ * For this purpose we will createObject a class named "employee" with an Entity
  * annotation as follows.
  *
  *      @DefineTable
