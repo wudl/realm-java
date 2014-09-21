@@ -17,8 +17,10 @@
 package io.realm;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.content.Context;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,42 +63,46 @@ public class Realm {
     private Map<Class<?>, Constructor> generatedConstructors = new HashMap<Class<?>, Constructor>();
     private Map<Class<?>, Table> tables = new HashMap<Class<?>, Table>();
 
-    private List<RealmChangeListener> changeListeners;
     boolean runEventHandler = false;
 
     /* This is the cached list of all realm objects */
-//    private static List<WeakReference<Realm>> realmCache
-//            = new ArrayList<WeakReference<Realm>>();
-//
-//    public static Realm create(File writeablePath) throws IOException {
-//        for(WeakReference<Realm> wRealm : realmCache) {
-//            Realm realm = wRealm.get();
-//            if(realm.filePath.equals(writeablePath) && realm != null) {
-//                return realm;
-//            }
-//        }
-//
-//        Realm realm = new Realm(writeablePath);
-//        WeakReference<Realm> wRealm = new WeakReference<Realm>(realm);
-//        realmCache.add(wRealm);
-//        return realm;
-//    }
+    private static ConcurrentHashMap<String, WeakReference<Realm>> realmCache
+            = new ConcurrentHashMap<String, WeakReference<Realm>>();
 
-    //hard refs version
-    private static List<Realm> realmCache
-            = new ArrayList<Realm>();
+    /* This is the list of func. pointers to run when a notification occurs for this particular Realm object */
+    private List<RealmChangeListener> changeListeners
+            = new CopyOnWriteArrayList<RealmChangeListener>();
+
+    //TODO:  Need create methods for the other types on Realm
 
     public static Realm create(File writeablePath) throws IOException {
-        for(Realm realm : realmCache) {
-            if(realm.filePath.equals(writeablePath.getAbsolutePath())
-                    && realm != null) {
-                return realm;
+        //TODO:  Need path validation.
+        for (String path : realmCache.keySet()) {
+            if (path != null
+                    && path.startsWith(writeablePath.getPath())) {
+                WeakReference<Realm> wRealm = realmCache.get(path);
+                if(wRealm != null && wRealm.get() != null) {
+                    return wRealm.get();
+                }
             }
         }
 
         Realm realm = new Realm(writeablePath);
-        realmCache.add(realm);
+        WeakReference<Realm> wRealm = new WeakReference<Realm>(realm);
+        realmCache.put(realm.filePath, wRealm);
         return realm;
+    }
+
+    public Realm(Context context) {
+        File filesDir = context.getFilesDir();
+        this.filePath = new File(filesDir, "default.realm").getAbsolutePath();
+        init();
+    }
+
+    public Realm(Context context, String filePath) {
+        File filesDir = context.getFilesDir();
+        this.filePath = new File(filesDir, filePath).getAbsolutePath();
+        init();
     }
 
     public Realm(File writeablePath) throws IOException {
@@ -103,7 +111,6 @@ public class Realm {
 
     public Realm(File writeablePath, String filePath) {
         this.filePath = new File(writeablePath, filePath).getAbsolutePath();
-        this.changeListeners = new ArrayList<RealmChangeListener>();
         init();
     }
 
@@ -116,13 +123,21 @@ public class Realm {
     @Override
     protected void finalize() throws Throwable {
         transaction.endRead();
-        System.out.println("finalize");
+        Looper.myLooper().quit();  //This call should be added somewhere in the close method for the realm
         super.finalize();
     }
 
     private void init() {
         this.sg = new SharedGroup(filePath, defaultDurability);
         this.transaction = sg.beginImplicitTransaction();
+
+        if (isInMainThread() == false) Looper.prepare();
+        notificationHandler = new RealmHandler();
+        if (isInMainThread() == false) Looper.loop();
+    }
+
+    public static boolean isInMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
     }
 
     public static void setDefaultDurability(SharedGroup.Durability durability) {
@@ -143,8 +158,8 @@ public class Realm {
     /**
      * Instantiates and adds a new object to the realm
      *
-     * @return              The new object
      * @param <E>
+     * @return The new object
      */
     public <E extends RealmObject> E createObject(Class<E> clazz) {
         Table table;
@@ -442,8 +457,8 @@ public class Realm {
     /**
      * Returns a typed RealmQuery, which can be used to query for specific objects of this type
      *
-     * @param clazz         The class of the object which is to be queried for
-     * @param <E extends RealmObject>
+     * @param clazz The class of the object which is to be queried for
+     * @param <E    extends RealmObject>
      * @return
      */
     public <E extends RealmObject> RealmQuery<E> where(Class<E> clazz) {
@@ -467,18 +482,23 @@ public class Realm {
     private static final int REALM_CHANGED_NOTIFICATION = 0x505;
     private static final String TAG = "Realm";
 
-    Handler notificationHandler = new Handler() {
+    Handler notificationHandler = null;
+
+    class RealmHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch(msg.what) {
+            switch (msg.what) {
                 case REALM_CHANGED_NOTIFICATION:
-                    Log.d(TAG, "WHAT's MY THREAD?" +
+                    Log.d(TAG, "WHICH THREAD am I?? -- Starting notifications" +
                             "Realm.Handler.handleMessage()"
                             + "," + Thread.currentThread().getName());
-                    for(RealmChangeListener listener : changeListeners) {
+
+                    //Execute func. pointers registered for this particular Realm.
+                    for (RealmChangeListener listener : changeListeners) {
                         listener.onChange();
                     }
+
                     break;
                 default:
             }
@@ -543,7 +563,7 @@ public class Realm {
         transaction.endRead();
         sg.close();
         new File(filePath).delete();
-        new File(filePath+".lock").delete();
+        new File(filePath + ".lock").delete();
         init();
     }
 
