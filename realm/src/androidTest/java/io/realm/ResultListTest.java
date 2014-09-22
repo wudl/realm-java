@@ -30,7 +30,7 @@ public class ResultListTest extends RealmSetupTests {
         testRealm.beginWrite();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
-        assertEquals("ResultList.clear test setup did not produce required test data", TEST_DATA_SIZE, resultList.size());
+        assertEquals("ResultList.where test setup did not produce required test data", TEST_DATA_SIZE, resultList.size());
 
         resultList.clear();
         assertEquals("ResultList.clear did not remove records", 0, resultList.size());
@@ -111,7 +111,7 @@ public class ResultListTest extends RealmSetupTests {
 
         Double checkAvg = 0.0;
         for (int i = 0; i < TEST_DATA_SIZE; ++i) {
-            checkAvg += 3.1415 + i;
+            checkAvg += 3.1415;
         }
         checkAvg /= TEST_DATA_SIZE;
 
@@ -139,9 +139,11 @@ public class ResultListTest extends RealmSetupTests {
 
     public void testIsResultRemoveLastListSizeOk() throws IOException {
 
-        testRealm.beginWrite();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
+
+        testRealm.beginWrite();
+
         resultList.removeLast();
 
         testRealm.commit();
@@ -150,6 +152,10 @@ public class ResultListTest extends RealmSetupTests {
 
         AllTypes allTypes = resultList.get(resultList.size() - 1);
         assertEquals("ResultList.removeLast unexpected last record", TEST_DATA_SIZE - 2, allTypes.getColumnLong());
+
+        RealmResults<AllTypes> resultListCheck = testRealm.where(AllTypes.class).findAll();
+        assertEquals("ResultList.removeLast not committed", TEST_DATA_SIZE - 1, resultListCheck.size());
+
     }
 
 }

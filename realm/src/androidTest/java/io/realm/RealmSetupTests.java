@@ -27,7 +27,6 @@ import io.realm.internal.SharedGroup;
 public class RealmSetupTests extends AndroidTestCase {
 
     protected final static int TEST_DATA_SIZE = 159;
-    //private   final static SharedGroup.Durability SG_DURABILITY = SharedGroup.Durability.MEM_ONLY;
     private   final static SharedGroup.Durability SG_DURABILITY = SharedGroup.Durability.FULL;
 
     protected Realm testRealm;
@@ -35,7 +34,7 @@ public class RealmSetupTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
 
-        Realm.setDefaultDurability(SharedGroup.Durability.MEM_ONLY);
+        Realm.setDefaultDurability(SG_DURABILITY);
 
         testRealm = new Realm(getContext());
 
@@ -48,7 +47,7 @@ public class RealmSetupTests extends AndroidTestCase {
             allTypes.setColumnBoolean((i % 3) == 0);
             allTypes.setColumnBinary(new byte[]{1, 2, 3});
             allTypes.setColumnDate(new Date());
-            allTypes.setColumnDouble(3.1415 + i);
+            allTypes.setColumnDouble(3.1415);
             allTypes.setColumnFloat(1.234567f + i);
             allTypes.setColumnString("test data " + i);
             allTypes.setColumnLong(i);
