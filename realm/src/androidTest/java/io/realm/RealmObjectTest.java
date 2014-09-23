@@ -12,7 +12,7 @@ public class RealmObjectTest extends RealmSetupTests {
     public void testRealmGetRowReturnRow() {
 
         testRealm.beginWrite();
-        RealmObject realmObject = testRealm.create( AllTypes.class);
+        RealmObject realmObject = testRealm.createObject( AllTypes.class);
 
         Row row = realmObject.realmGetRow();
 

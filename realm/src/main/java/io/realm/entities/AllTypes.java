@@ -63,7 +63,7 @@ public class AllTypes extends RealmObject {
         this.columnDouble = columnDouble;
     }
 
-    public boolean isColumnBoolean() {
+    public boolean getColumnBoolean() {
         return columnBoolean;
     }
 

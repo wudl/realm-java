@@ -36,14 +36,14 @@ public class RealmSetupTests extends AndroidTestCase {
 
         Realm.setDefaultDurability(SG_DURABILITY);
 
-        testRealm = new Realm(getContext());
-
-        testRealm.clear();
+        testRealm = Realm.getInstance(getContext());
 
         testRealm.beginWrite();
 
+        testRealm.clear(AllTypes.class);
+
         for (int i = 0; i < TEST_DATA_SIZE; ++i) {
-            AllTypes allTypes = testRealm.create(AllTypes.class);
+            AllTypes allTypes = testRealm.createObject(AllTypes.class);
             allTypes.setColumnBoolean((i % 3) == 0);
             allTypes.setColumnBinary(new byte[]{1, 2, 3});
             allTypes.setColumnDate(new Date());
