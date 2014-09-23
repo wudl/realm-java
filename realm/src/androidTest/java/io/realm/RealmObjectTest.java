@@ -11,12 +11,12 @@ public class RealmObjectTest extends RealmSetupTests {
     // Row realmGetRow()
     public void testRealmGetRowReturnRow() {
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         RealmObject realmObject = testRealm.createObject( AllTypes.class);
 
         Row row = realmObject.realmGetRow();
 
-        testRealm.commit();
+        testRealm.commitTransaction();
         assertNotNull("RealmObject.realmGetRow returns zero ", row);
     }
 

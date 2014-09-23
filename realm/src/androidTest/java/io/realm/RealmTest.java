@@ -23,7 +23,6 @@ import java.util.concurrent.Semaphore;
 
 import io.realm.entities.AllTypes;
 import io.realm.entities.Dog;
-import io.realm.internal.SharedGroup;
 import io.realm.internal.Table;
 
 
@@ -66,46 +65,46 @@ public class RealmTest extends RealmSetupTests {
         fail("Realm has been created with null Context");
     }
 
-    // setDefaultDurability(SharedGroup.Durability durability)
-    public void testShouldSetDurabilityFull() {
-        Realm.setDefaultDurability(SharedGroup.Durability.FULL);
-        //TODO Add code that checks that the DefaultDurability has been set
-    }
-
-    // setDefaultDurability(SharedGroup.Durability durability)
-    public void testShouldSetDurabilityFullByName() {
-        Realm.setDefaultDurability(SharedGroup.Durability.valueOf("FULL"));
-        //TODO Add code that checks that the DefaultDurability has been set
-    }
-
-    // setDefaultDurability(SharedGroup.Durability durability)
-    public void testShouldNotFailSettingInvalidDurability() {
-        Realm.setDefaultDurability(SharedGroup.Durability.valueOf("INVALID"));
-        //TODO Add code that checks that the DefaultDurability has NOT been set
-    }
-
-    // setDefaultDurability(SharedGroup.Durability durability)
-    public void testShouldSetDurabilityMemOnly() {
-        Realm.setDefaultDurability(SharedGroup.Durability.MEM_ONLY);
-        //TODO Add code that checks that the DefaultDurability has been set
-    }
+//    // setDefaultDurability(SharedGroup.Durability durability)
+//    public void testShouldSetDurabilityFull() {
+//        Realm.setDefaultDurability(SharedGroup.Durability.FULL);
+//        //TODO Add code that checks that the DefaultDurability has been set
+//    }
+//
+//    // setDefaultDurability(SharedGroup.Durability durability)
+//    public void testShouldSetDurabilityFullByName() {
+//        Realm.setDefaultDurability(SharedGroup.Durability.valueOf("FULL"));
+//        //TODO Add code that checks that the DefaultDurability has been set
+//    }
+//
+//    // setDefaultDurability(SharedGroup.Durability durability)
+//    public void testShouldNotFailSettingInvalidDurability() {
+//        Realm.setDefaultDurability(SharedGroup.Durability.valueOf("INVALID"));
+//        //TODO Add code that checks that the DefaultDurability has NOT been set
+//    }
+//
+//    // setDefaultDurability(SharedGroup.Durability durability)
+//    public void testShouldSetDurabilityMemOnly() {
+//        Realm.setDefaultDurability(SharedGroup.Durability.MEM_ONLY);
+//        //TODO Add code that checks that the DefaultDurability has been set
+//    }
 
     // Table getTable(Class<?> clazz)
     public void testShouldGetTable() {
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         Table table = testRealm.getTable(AllTypes.class);
-        testRealm.commit();
+        testRealm.commitTransaction();
         assertNotNull("getTable is returning a null Table object", table);
     }
 
     // <E> void remove(Class<E> clazz, long objectIndex)
     public void testShouldRemoveRow() {
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         testRealm.remove(AllTypes.class, 0);
 
-        testRealm.commit();
+        testRealm.commitTransaction();
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         assertEquals("Realm.delete has not deleted record correctly", TEST_DATA_SIZE - 1, resultList.size());
 
@@ -121,9 +120,9 @@ public class RealmTest extends RealmSetupTests {
     // boolean contains(Class<?> clazz)
     public void testShouldContainTable() {
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         AllTypes allTypes = testRealm.createObject(AllTypes.class);
-        testRealm.commit();
+        testRealm.commitTransaction();
         assertTrue("contains returns false for newly created table", testRealm.contains(AllTypes.class));
     }
 
@@ -221,10 +220,10 @@ public class RealmTest extends RealmSetupTests {
 
     // <E extends RealmObject> RealmTableOrViewList<E> allObjects(Class<E> clazz)
     public void testShouldReturnTableOrViewList() {
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         RealmResults<AllTypes> resultList = testRealm.allObjects(AllTypes.class);
         assertEquals("Realm.get is returning wrong result set", TEST_DATA_SIZE, resultList.size());
-        testRealm.commit();
+        testRealm.commitTransaction();
     }
 
     // addChangeListener(RealmChangeListener listener)
@@ -238,14 +237,14 @@ public class RealmTest extends RealmSetupTests {
             }
         });
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("King"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         getNotifications(1);
 
@@ -270,14 +269,14 @@ public class RealmTest extends RealmSetupTests {
 
         testRealm.addChangeListener(realmChangeListener);
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("King"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         getNotifications(2);
 
@@ -287,14 +286,14 @@ public class RealmTest extends RealmSetupTests {
 
         testCount = 0;
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("Fido"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         getNotifications(1);
         assertEquals("Should not receive change notifications after removeChangeListener", 0, testCount);
@@ -322,14 +321,14 @@ public class RealmTest extends RealmSetupTests {
 
         testCount = 0;
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("Fido"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         getNotifications(BACKGROUND_COMMIT_TEST_DATA_SET_SIZE);
 
@@ -354,14 +353,14 @@ public class RealmTest extends RealmSetupTests {
 
         testCount = 0;
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("Fido"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         getNotifications(1);
 
@@ -388,14 +387,14 @@ public class RealmTest extends RealmSetupTests {
 
         testCount = 0;
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
 
             Dog dog = testRealm.createObject(Dog.class);
             dog.setName("Fido"+Integer.toString(i) );
         }
 
-        testRealm.commit();
+        testRealm.commitTransaction();
         getNotifications(BACKGROUND_COMMIT_TEST_DATA_SET_SIZE);
 
         testRealm.removeAllChangeListeners();
@@ -410,60 +409,60 @@ public class RealmTest extends RealmSetupTests {
     // IMPORTANT: This test worked until the RealmEventHandler was changed to use
 
 
-    public void testChangeUpdateFromOtherThread() {
-
-        testCount = 0;
-
-        RealmChangeListener realmChangeListener = new RealmChangeListener() {
-            @Override
-            public void onChange() {
-                testCount++;
-            }
-        };
-
-        testRealm.addChangeListener(realmChangeListener);
-
-        try {
-            asyncReaderDone.acquire();
-        } catch (Exception ex) {
-            fail("Unexpected exception during test setup " + ex.getMessage());
-        }
-
-        new Thread( new Runnable() {
-            @Override
-            public void run() {
-                Realm localRealm = Realm.getInstance(getContext());
-                localRealm.beginWrite();
-                for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
-
-                    Dog dog = localRealm.createObject(Dog.class);
-                    dog.setName("Fido" + Integer.toString(i));
-                }
-                localRealm.commit();
-
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex)
-                {
-
-                }
-
-                asyncReaderDone.release();
-            }
-        }).start();
-
-        try {
-            asyncReaderDone.acquire();
-
-            getNotifications(1);
-
-            testRealm.removeAllChangeListeners();
-
-            assertTrue("Should receive change notifications when modifying table in another thread "+testCount, 0 < testCount);
-        } catch (Exception ex) {
-            fail("Unexpected exception " + ex.getMessage());
-        }
-    }
+//    public void testChangeUpdateFromOtherThread() {
+//
+//        testCount = 0;
+//
+//        RealmChangeListener realmChangeListener = new RealmChangeListener() {
+//            @Override
+//            public void onChange() {
+//                testCount++;
+//            }
+//        };
+//
+//        testRealm.addChangeListener(realmChangeListener);
+//
+//        try {
+//            asyncReaderDone.acquire();
+//        } catch (Exception ex) {
+//            fail("Unexpected exception during test setup " + ex.getMessage());
+//        }
+//
+//        new Thread( new Runnable() {
+//            @Override
+//            public void run() {
+//                Realm localRealm = Realm.getInstance(getContext());
+//                localRealm.beginTransaction();
+//                for (int i = 0; i < BACKGROUND_COMMIT_TEST_DATA_SET_SIZE; i++) {
+//
+//                    Dog dog = localRealm.createObject(Dog.class);
+//                    dog.setName("Fido" + Integer.toString(i));
+//                }
+//                localRealm.commitTransaction();
+//
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (Exception ex)
+//                {
+//
+//                }
+//
+//                asyncReaderDone.release();
+//            }
+//        }).start();
+//
+//        try {
+//            asyncReaderDone.acquire();
+//
+//            getNotifications(1);
+//
+//            testRealm.removeAllChangeListeners();
+//
+//            assertTrue("Should receive change notifications when modifying table in another thread "+testCount, 0 < testCount);
+//        } catch (Exception ex) {
+//            fail("Unexpected exception " + ex.getMessage());
+//        }
+//    }
 
     // void refresh()
     public void testRefresh() {
@@ -475,11 +474,11 @@ public class RealmTest extends RealmSetupTests {
     // void beginWrite()
     public void testBeginWrite() throws IOException {
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         AllTypes allTypes = testRealm.createObject(AllTypes.class);
         allTypes.setColumnString("Test data");
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         assertEquals("Change has not been committed", TEST_DATA_SIZE + 1, resultList.size());
@@ -487,10 +486,10 @@ public class RealmTest extends RealmSetupTests {
 
     //void commit()
     public void testCommit() {
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
         AllTypes allTypes = testRealm.createObject(AllTypes.class);
         allTypes.setColumnBoolean(true);
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         assertEquals("Change has not been committed", TEST_DATA_SIZE + 1, resultList.size());
@@ -500,28 +499,28 @@ public class RealmTest extends RealmSetupTests {
     public void testClassClear() {
 
         //Currently clear will not work outside a transaction
-        //testRealm.beginWrite();
+        //testRealm.beginTransaction();
         testRealm.clear(AllTypes.class);
-        //testRealm.commit();
+        //testRealm.commitTransaction();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         assertEquals("Realm.clear does not empty table", 0, resultList.size());
     }
 
     //void clear()
-    public void testClassClearAllWithTwoTables() {
-        testRealm.beginWrite();
+    public void testClassClearWithTwoTables() {
+        testRealm.beginTransaction();
 
         Dog dog = testRealm.createObject(Dog.class);
         dog.setName("Castro");
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         //Currently clear will not work outside a transaction
-        //testRealm.beginWrite();
+        //testRealm.beginTransaction();
         testRealm.clear(Dog.class);
         testRealm.clear(AllTypes.class);
-        //testRealm.commit();
+        //testRealm.commitTransaction();
 
         RealmResults<AllTypes> resultListTypes = testRealm.where(AllTypes.class).findAll();
         RealmResults<Dog> resultListDogs = testRealm.where(Dog.class).findAll();

@@ -57,13 +57,13 @@ public class CityLoader extends AsyncTaskLoader<List<City>> {
         Realm realm = new Realm(context);
         realm.clear(); //Delete the Realm (in the event of a Reset)
 
-        realm.beginWrite();
+        realm.beginTransaction();
         for (City city : items) {
             City realmCity = realm.create(City.class);
             realmCity.setName(city.getName());
             realmCity.setVotes(city.getVotes());
         }
-        realm.commit();
+        realm.commitTransaction();
 
         return items;
     }

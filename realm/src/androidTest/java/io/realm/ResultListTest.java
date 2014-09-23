@@ -27,7 +27,7 @@ public class ResultListTest extends RealmSetupTests {
     //void clear(Class<?> classSpec)
     public void testClearEmptiesTable() throws IOException {
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         assertEquals("ResultList.where test setup did not produce required test data", TEST_DATA_SIZE, resultList.size());
@@ -35,7 +35,7 @@ public class ResultListTest extends RealmSetupTests {
         resultList.clear();
         assertEquals("ResultList.clear did not remove records", 0, resultList.size());
 
-        testRealm.commit();
+        testRealm.commitTransaction();
     }
 
     public void testResultListGet() {
@@ -122,13 +122,13 @@ public class ResultListTest extends RealmSetupTests {
     //void clear(Class<?> classSpec)
     public void testRemoveIsResultListSizeOk() throws IOException {
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
         resultList.remove(0);
 
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         boolean checkListSize = resultList.size() == TEST_DATA_SIZE - 1;
         assertTrue("ResultList.remove did not remove record", checkListSize);
@@ -142,11 +142,11 @@ public class ResultListTest extends RealmSetupTests {
 
         RealmResults<AllTypes> resultList = testRealm.where(AllTypes.class).findAll();
 
-        testRealm.beginWrite();
+        testRealm.beginTransaction();
 
         resultList.removeLast();
 
-        testRealm.commit();
+        testRealm.commitTransaction();
 
         assertEquals("ResultList.removeLast did not remove record", TEST_DATA_SIZE - 1, resultList.size());
 
