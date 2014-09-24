@@ -26,14 +26,11 @@ import io.realm.entities.AllTypes;
 public class RealmSetupTests extends AndroidTestCase {
 
     protected final static int TEST_DATA_SIZE = 159;
-    //private   final static SharedGroup.Durability SG_DURABILITY = SharedGroup.Durability.FULL;
 
     protected Realm testRealm;
 
     @Override
     protected void setUp() throws Exception {
-
-        //Realm.setDefaultDurability(SG_DURABILITY);
 
         testRealm = Realm.getInstance(getContext());
 
