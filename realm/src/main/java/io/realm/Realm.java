@@ -689,11 +689,13 @@ public final class Realm implements Closeable {
     private static void initializeRealm(Realm realm) {
         long version = realm.getVersion();
         boolean commitNeeded = false;
+        boolean transactionBegan = false;
         try {
-            realm.beginTransaction();
             if (version == UNVERSIONED) {
-                commitNeeded = true;
+                realm.beginTransaction();
+                transactionBegan = true;
                 realm.setVersion(realm.configuration.getSchemaVersion());
+                commitNeeded = true;
             }
 
             RealmProxyMediator mediator = realm.configuration.getSchemaMediator();
@@ -706,9 +708,9 @@ public final class Realm implements Closeable {
                 realm.columnIndices.addClass(modelClass, mediator.getColumnIndices(modelClass));
             }
         } finally {
-            if (commitNeeded) {
+            if (transactionBegan && commitNeeded) {
                 realm.commitTransaction();
-            } else {
+            } else if (transactionBegan) {
                 realm.cancelTransaction();
             }
         }

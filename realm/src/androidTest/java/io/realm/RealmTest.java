@@ -1761,4 +1761,28 @@ public class RealmTest extends AndroidTestCase {
         testRealm.checkIfValid();
         testRealm.close();
     }
+
+    // 1. Open Realm, begin a transaction.
+    // A. Open Realm, close Realm.
+    // 2. Cancel transaction, close Realm.
+    public void testOpenRealmInDiffThreadWhileTransaction() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        // Step 1
+        testRealm.beginTransaction();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Step A
+                Realm realm = Realm.getInstance(getContext());
+                realm.close();
+                latch.countDown();
+            }
+        });
+        thread.start();
+        assertTrue(latch.await(2, TimeUnit.SECONDS));
+        // Step 2
+        testRealm.cancelTransaction();
+        testRealm.close();
+    }
 }
