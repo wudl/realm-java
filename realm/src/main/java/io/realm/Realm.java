@@ -692,10 +692,15 @@ public final class Realm implements Closeable {
         boolean transactionBegan = false;
         try {
             if (version == UNVERSIONED) {
+                // FIXME: Need check if transaction can be started. If no, waiting and pooling the version.
                 realm.beginTransaction();
                 transactionBegan = true;
-                realm.setVersion(realm.configuration.getSchemaVersion());
-                commitNeeded = true;
+                // Check the version again. The other thread/process might set the version in the previous transaction
+                version = realm.getVersion();
+                if (version == UNVERSIONED) {
+                    realm.setVersion(realm.configuration.getSchemaVersion());
+                    commitNeeded = true;
+                }
             }
 
             RealmProxyMediator mediator = realm.configuration.getSchemaMediator();
